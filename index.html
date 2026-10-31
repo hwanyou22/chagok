@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#F4F5F2">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -28,11 +28,13 @@ nav button.on{color:var(--ac);font-weight:700}
 h1{margin:0;font-size:20px;font-weight:700}
 .title{padding:24px 16px 12px}
 .card{background:#fff;border-radius:14px;padding:14px;margin:12px 16px 0}
-label.l{display:block;font-size:12px;color:#5B6661;margin:12px 0 4px}
-.in{width:100%;height:44px;border:1px solid #D5D9D3;border-radius:10px;padding:0 12px;font-size:14.5px;font-weight:500;color:#17201D;background:#fff}
-.in.amt{height:52px;border:2px solid var(--ac);text-align:right;font-size:22px;font-weight:700;padding:0 14px}
+label.l{display:block;font-size:12px;color:#5B6661;margin:10px 0 4px}
+input[type=date]{text-align:left;-webkit-appearance:none;appearance:none;display:block}
+input::-webkit-date-and-time-value{text-align:left}
+.in{width:100%;height:40px;border:1px solid #D5D9D3;border-radius:10px;padding:0 12px;font-size:14.5px;font-weight:500;color:#17201D;background:#fff}
+.in.amt{height:48px;border:2px solid var(--ac);text-align:right;font-size:22px;font-weight:700;padding:0 14px}
 .seg{background:#E8EBE6;border-radius:10px;padding:3px;display:flex;gap:2px}
-.seg button{flex:1;height:40px;border:0;border-radius:8px;background:transparent;color:#5B6661;font-size:14px;font-weight:500}
+.seg button{flex:1;height:36px;border:0;border-radius:8px;background:transparent;color:#5B6661;font-size:14px;font-weight:500}
 .seg button.on{background:#fff;color:#17201D;font-weight:700}
 .btn{height:52px;border-radius:14px;border:0;background:var(--ac);color:#fff;font-size:15px;font-weight:700;flex:1}
 .btn.o{background:#fff;border:1px solid var(--ac);color:var(--ac);font-size:14px}
@@ -70,6 +72,14 @@ label.l{display:block;font-size:12px;color:#5B6661;margin:12px 0 4px}
 .sec{font-size:14px;font-weight:700}
 .dot{width:40px;height:40px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px #D5D9D3;padding:0}
 .dot.on{box-shadow:0 0 0 3px #17201D}
+.pk{display:flex;align-items:center;justify-content:space-between;text-align:left;background:#fff;gap:6px}
+.pk span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pk .ph{color:#9AA39E;font-weight:400}
+.prow{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:52px;border:0;border-top:1px solid #EEF0EC;background:none;font-size:15px;font-weight:500;color:#17201D;text-align:left;padding:0}
+.prow.on{font-weight:700;color:var(--ac)}
+@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.sheet{animation:up .18s ease-out}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
 .modal{position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;z-index:5}
 .sheet{background:#fff;width:100%;border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom))}
 .hint{font-size:11.5px;color:#5B6661}
@@ -127,7 +137,7 @@ const S = {
   view: 'welcome', wvar: 'normal', wmsg: '', busy: false,
   y: +t0.slice(0, 4), m: +t0.slice(5, 7), sel: t0,
   sheetId: lsGet(K.id), gids: {}, tx: [], free: {}, opts: {}, optRow: {},
-  form: null, confirm: '', pays: [], cats: [], subs: [], modal: null, seg: '변동비'
+  form: null, confirm: '', pays: [], cats: [], subs: [], modal: null, picker: null, seg: '변동비'
 };
 function newForm(date) { return { kind: '지출', date: date || todayStr(), amt: '', memo: '', pay: '', cat: '', sub: '', note: '' }; }
 
@@ -409,32 +419,50 @@ function homeHtml() {
     (pend ? '<div style="margin-top:10px;min-height:44px;padding:0 14px;border-radius:12px;background:#FFF3DC;color:#9A5B00;display:flex;align-items:center;font-size:13px;font-weight:700">정산 대기 ' + pend + '건 · 목록은 아직 준비 중이에요</div>' : '') +
     '</div></div>' + navHtml();
 }
-function selHtml(id, f, cur, opts, ph) {
-  const list = opts.slice(); if (cur && list.indexOf(cur) < 0) list.push(cur);
-  return '<select id="' + id + '" class="in" data-f="' + f + '"><option value="">' + ph + '</option>' + list.map(v => '<option value="' + esc(v) + '"' + (v === cur ? ' selected' : '') + '>' + esc(v) + '</option>').join('') + '</select>';
+const CHEV = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B6661" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M6 9l6 6 6-6"/></svg>';
+function pickField(id, f, cur, ph) {
+  return '<button id="' + id + '" class="in pk" data-act="pk" data-f="' + f + '"><span class="' + (cur ? '' : 'ph') + '">' + esc(cur || ph) + '</span>' + CHEV + '</button>';
+}
+function pickOpts(f) {
+  const fm = S.form;
+  if (f === 'pay') return S.pays.filter(p => !p.hidden).map(p => p.name);
+  if (f === 'cat') return S.cats.filter(c => c.kind === fm.kind && !c.hidden).map(c => c.name);
+  return S.subs.filter(x => x.parent === fm.cat && !x.hidden).map(x => x.name);
+}
+function pickerHtml() {
+  const P = S.picker; if (!P) return '';
+  const cur = S.form[P.f];
+  const list = P.opts.slice(); if (cur && list.indexOf(cur) < 0) list.push(cur);
+  const row = (label, i, on) => '<button class="prow' + (on ? ' on' : '') + '" data-act="pv" data-i="' + i + '"><span>' + esc(label) + '</span>' + (on ? svg('<path d="M5 12l5 5 9-10"/>', 20) : '') + '</button>';
+  return '<div class="modal" data-act="pclose"><div class="sheet" data-act="noop" role="dialog" aria-label="' + esc(P.title) + '" style="max-height:80%;overflow-y:auto">' +
+    '<div style="width:40px;height:4px;border-radius:2px;background:#D5D9D3;margin:-6px auto 12px"></div>' +
+    '<div class="row" style="justify-content:space-between;margin-bottom:6px"><div style="font-size:16px;font-weight:700">' + esc(P.title) + '</div>' +
+    '<button data-act="topset" style="border:0;background:none;color:var(--ac);font-size:12.5px;font-weight:700;height:36px;padding:0">설정에서 목록 바꾸기 ›</button></div>' +
+    row('선택 안 함', -1, !cur) + list.map((v, i) => row(v, i, v === cur)).join('') +
+    (list.length ? '' : '<div class="hint" style="padding:12px 0">목록이 비어 있어요. 설정에서 먼저 추가해 주세요</div>') + '</div></div>';
 }
 function inputHtml() {
   const f = S.form, ex = distinct(), hasPay = S.pays.length > 0, hasCat = S.cats.length > 0;
-  const pay = hasPay ? selHtml('f-pay', 'pay', f.pay, S.pays.filter(p => !p.hidden).map(p => p.name), '선택 안 함')
+  const pay = hasPay ? pickField('f-pay', 'pay', f.pay, '선택')
     : '<input id="f-pay" class="in" type="text" list="dl-pay" value="' + esc(f.pay) + '" data-f="pay" placeholder="예: 국민카드">';
-  const cat = hasCat ? selHtml('f-cat', 'cat', f.cat, S.cats.filter(c => c.kind === f.kind && !c.hidden).map(c => c.name), '선택')
+  const cat = hasCat ? pickField('f-cat', 'cat', f.cat, '선택')
     : '<input id="f-cat" class="in" type="text" list="dl-cat" value="' + esc(f.cat) + '" data-f="cat" placeholder="예: 식비">';
-  const sub = hasCat ? selHtml('f-sub', 'sub', f.sub, S.subs.filter(x => x.parent === f.cat && !x.hidden).map(x => x.name), f.cat ? '선택' : '대분류 먼저')
+  const sub = hasCat ? pickField('f-sub', 'sub', f.sub, f.cat ? '선택' : '대분류 먼저')
     : '<input id="f-sub" class="in" type="text" list="dl-sub" value="' + esc(f.sub) + '" data-f="sub" placeholder="예: 외식">';
   return '<div class="scroll"><div class="title"><h1><span aria-hidden="true">✏️</span> 오늘은 뭘 기록할까?</h1></div>' +
     '<div class="card" style="margin-top:0"><div class="seg" role="tablist">' + KINDS.map(k => '<button data-act="kind" data-k="' + k + '" class="' + (f.kind === k ? 'on' : '') + '">' + k + '</button>').join('') + '</div>' +
     '<label class="l" for="f-date">날짜</label><div class="row"><input id="f-date" class="in" type="date" value="' + f.date + '" data-f="date" style="flex:1;min-width:0">' +
-    '<button data-act="dset" data-n="0" style="width:52px;height:44px;border:0;border-radius:10px;background:var(--acbg);color:var(--ac);font-size:13px;font-weight:700">오늘</button>' +
-    '<button data-act="dset" data-n="-1" style="width:52px;height:44px;border:1px solid #D5D9D3;border-radius:10px;background:#fff;color:#17201D;font-size:13px">어제</button></div>' +
+    '<button data-act="dset" data-n="0" style="width:52px;height:40px;border:0;border-radius:10px;background:var(--acbg);color:var(--ac);font-size:13px;font-weight:700">오늘</button>' +
+    '<button data-act="dset" data-n="-1" style="width:52px;height:40px;border:1px solid #D5D9D3;border-radius:10px;background:#fff;color:#17201D;font-size:13px">어제</button></div>' +
     '<label class="l" for="f-amt">금액 (원)</label><input id="f-amt" class="in amt" type="text" inputmode="numeric" placeholder="0" value="' + esc(f.amt) + '" data-f="amt">' +
-    '<label class="l" for="f-memo">내용</label><input id="f-memo" class="in" type="text" value="' + esc(f.memo) + '" data-f="memo" placeholder="예: 점심 김밥">' +
-    '<label class="l" for="f-pay">결제수단</label>' + pay +
+    '<label class="l" for="f-memo">내용</label><input id="f-memo" class="in" type="text" value="' + esc(f.memo) + '" data-f="memo" placeholder="' + (f.kind === '수입' ? '예: 10월 월급' : f.kind === '저축' ? '예: 자유적금' : '예: 점심 김밥') + '">' +
+    (f.kind === '수입' ? '' : '<label class="l" for="f-pay">' + (f.kind === '저축' ? '출금 계좌' : '결제수단') + '</label>' + pay) +
     '<div class="row" style="align-items:flex-end"><div style="flex:1;min-width:0"><label class="l" for="f-cat">대분류</label>' + cat + '</div>' +
     '<div style="flex:1;min-width:0"><label class="l" for="f-sub">소분류</label>' + sub + '</div></div>' +
     ((!hasPay || !hasCat) ? '<div class="hint" style="margin-top:8px">설정에서 결제수단과 분류를 만들어 두면 여기서 고르기만 하면 돼요</div>' : '') +
     '<label class="l" for="f-note">비고 (선택)</label><input id="f-note" class="in" type="text" value="' + esc(f.note) + '" data-f="note" placeholder="메모">' +
     '<datalist id="dl-pay">' + ex.pay.map(v => '<option value="' + esc(v) + '">').join('') + '</datalist><datalist id="dl-cat">' + ex.cat.map(v => '<option value="' + esc(v) + '">').join('') + '</datalist><datalist id="dl-sub">' + ex.sub.map(v => '<option value="' + esc(v) + '">').join('') + '</datalist></div>' +
-    '<div class="row" style="margin:12px 16px 0"><button class="btn o" data-act="save" data-cont="1">저장하고 계속</button><button class="btn" data-act="save">저장</button></div></div>' + navHtml();
+    '<div class="row" style="margin:12px 16px 0"><button class="btn o" data-act="save" data-cont="1">저장하고 계속</button><button class="btn" data-act="save">저장</button></div></div>' + navHtml() + pickerHtml();
 }
 function distinct() {
   const u = k => Array.from(new Set(S.tx.map(t => t[k]).filter(Boolean)));
@@ -467,7 +495,7 @@ function settingsHtml() {
   const cats = S.cats.filter(c => inSeg(c, S.seg));
   const catCards = cats.map(c => '<div style="border-top:1px solid #EEF0EC;padding:10px 0 4px">' +
     '<div class="row" style="justify-content:space-between;margin-bottom:8px"><button data-act="ecat" data-row="' + c.row + '" style="border:0;background:none;padding:0;font-size:14px;font-weight:700;color:' + (c.hidden ? '#9AA39E' : '#17201D') + ';text-decoration:' + (c.hidden ? 'line-through' : 'none') + '">' + esc(c.name) + ' ›</button>' +
-    (c.kind === '지출' ? '<select class="in" style="width:96px;height:36px;font-size:13px" data-act="fv" data-row="' + c.row + '" aria-label="고정비 변동비"><option' + (c.fv !== '고정' ? ' selected' : '') + '>변동비</option><option' + (c.fv === '고정' ? ' selected' : '') + '>고정비</option></select>' : '') + '</div>' +
+    (c.kind === '지출' ? '<select class="in" style="width:96px;height:36px;font-size:13px;padding:0 8px" data-act="fv" data-row="' + c.row + '" aria-label="고정비 변동비"><option' + (c.fv !== '고정' ? ' selected' : '') + '>변동비</option><option' + (c.fv === '고정' ? ' selected' : '') + '>고정비</option></select>' : '') + '</div>' +
     '<div class="row" style="flex-wrap:wrap;gap:6px">' + chips(S.subs.filter(x => x.parent === c.name), 'esub') + '<button class="chp add" data-act="nsub" data-p="' + esc(c.name) + '">+</button></div></div>').join('');
   return '<div class="scroll"><div class="title"><h1><span aria-hidden="true">🛠️</span> 사부작 사부작 세팅하기</h1></div>' +
     '<div class="card" style="margin-top:0"><div class="row" style="justify-content:space-between"><div><div class="hint">연결된 구글 시트</div><div style="font-size:14px;font-weight:500">차곡차곡 · 내 구글 드라이브</div></div>' +
@@ -498,14 +526,14 @@ function render() {
 
 // ---------- 동작 ----------
 function openModal(m) { S.modal = Object.assign({ hidden: false }, m); render(); const n = $('m-name'); if (n) { n.focus(); } }
-function go(v) { S.view = v; S.confirm = ''; if (v === 'input' && !S.form) S.form = newForm(S.sel); render(); }
+function go(v) { S.view = v; S.confirm = ''; S.picker = null; if (v === 'input' && !S.form) S.form = newForm(S.sel); render(); }
 async function saveTx(cont) {
   const f = S.form, amt = Number(String(f.amt).replace(/[^0-9]/g, ''));
   if (!amt) return toast('금액을 넣어 주세요', true);
   if (!f.date) return toast('날짜를 골라 주세요', true);
   const date = f.date, time = date === todayStr() ? (pad(new Date().getHours()) + ':' + pad(new Date().getMinutes())) : '';
   const ok = await run(async () => {
-    await appendRows('거래', [[date, time, f.kind, amt, f.cat.trim(), f.sub.trim(), f.memo.trim(), f.pay.trim(), f.note.trim(), '', '', '']]);
+    await appendRows('거래', [[date, time, f.kind, amt, f.cat.trim(), f.sub.trim(), f.memo.trim(), (f.kind === '수입' ? '' : f.pay.trim()), f.note.trim(), '', '', '']]);
     if (f.kind === '지출' && S.free[date]) { await deleteRows('무지출일', [S.free[date]]); }
     await reload();
   }, '저장했어요');
@@ -515,6 +543,17 @@ async function saveTx(cont) {
   else { S.form = null; go('home'); }
 }
 const actions = {
+  pk: el => {
+    const f = el.dataset.f;
+    if (f === 'sub' && !S.form.cat) return toast('대분류를 먼저 골라 주세요');
+    S.picker = { f, title: f === 'pay' ? (S.form.kind === '저축' ? '출금 계좌' : '결제수단') : f === 'cat' ? '대분류' : '소분류', opts: pickOpts(f) }; render();
+  },
+  pv: el => {
+    const P = S.picker, i = Number(el.dataset.i), cur = S.form[P.f], list = P.opts.slice(); if (cur && list.indexOf(cur) < 0) list.push(cur);
+    S.form[P.f] = i < 0 ? '' : list[i]; if (P.f === 'cat') S.form.sub = ''; S.picker = null; render();
+  },
+  pclose: () => { S.picker = null; render(); },
+  topset: () => { S.picker = null; go('settings'); },
   noop: () => {},
   seg: el => { S.seg = el.dataset.g; render(); },
   theme: el => { lsSet(K.theme, el.dataset.t); applyTheme(); render(); },
@@ -555,7 +594,7 @@ const actions = {
     await run(async () => { await deleteRows('거래', [row]); await reload(); }, '삭제했어요');
     render();
   },
-  kind: el => { S.form.kind = el.dataset.k; S.form.cat = ''; S.form.sub = ''; render(); },
+  kind: el => { S.form.kind = el.dataset.k; S.form.cat = ''; S.form.sub = ''; S.picker = null; render(); },
   dset: el => { S.form.date = addDays(todayStr(), Number(el.dataset.n)); render(); },
   save: el => saveTx(!!el.dataset.cont),
   disconnect: () => { [K.id, K.tok, K.wel].forEach(lsDel); token = null; S.sheetId = null; S.tx = []; S.free = {}; S.opts = {}; S.form = null; S.view = 'welcome'; S.wvar = 'normal'; S.wmsg = ''; render(); },
