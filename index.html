@@ -4,9 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#F4F5F2">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="차곡차곡">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>차곡차곡</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
+:root{--ac:#0E6B5B;--acbg:#E3F1EE}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%}
 body{font-family:'Noto Sans KR',system-ui,-apple-system,sans-serif;font-variant-numeric:tabular-nums;color:#17201D;background:#F4F5F2}
@@ -16,18 +24,18 @@ button{cursor:pointer}
 .scroll{flex:1;overflow-y:auto;padding-bottom:12px}
 nav{height:calc(64px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:#fff;border-top:1px solid #E1E4DF;display:flex;flex:none}
 nav button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#5B6661;font-size:11px;font-weight:500}
-nav button.on{color:#0E6B5B;font-weight:700}
+nav button.on{color:var(--ac);font-weight:700}
 h1{margin:0;font-size:20px;font-weight:700}
 .title{padding:24px 16px 12px}
 .card{background:#fff;border-radius:14px;padding:14px;margin:12px 16px 0}
 label.l{display:block;font-size:12px;color:#5B6661;margin:12px 0 4px}
 .in{width:100%;height:44px;border:1px solid #D5D9D3;border-radius:10px;padding:0 12px;font-size:14.5px;font-weight:500;color:#17201D;background:#fff}
-.in.amt{height:52px;border:2px solid #0E6B5B;text-align:right;font-size:22px;font-weight:700;padding:0 14px}
+.in.amt{height:52px;border:2px solid var(--ac);text-align:right;font-size:22px;font-weight:700;padding:0 14px}
 .seg{background:#E8EBE6;border-radius:10px;padding:3px;display:flex;gap:2px}
 .seg button{flex:1;height:40px;border:0;border-radius:8px;background:transparent;color:#5B6661;font-size:14px;font-weight:500}
 .seg button.on{background:#fff;color:#17201D;font-weight:700}
-.btn{height:52px;border-radius:14px;border:0;background:#0E6B5B;color:#fff;font-size:15px;font-weight:700;flex:1}
-.btn.o{background:#fff;border:1px solid #0E6B5B;color:#0E6B5B;font-size:14px}
+.btn{height:52px;border-radius:14px;border:0;background:var(--ac);color:#fff;font-size:15px;font-weight:700;flex:1}
+.btn.o{background:#fff;border:1px solid var(--ac);color:var(--ac);font-size:14px}
 .btn.sm{height:44px;border-radius:12px;font-size:14px}
 .btn:disabled{opacity:.5}
 .chip{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:14px;font-size:12.5px;font-weight:700}
@@ -35,29 +43,37 @@ label.l{display:block;font-size:12px;color:#5B6661;margin:12px 0 4px}
 .cell .d{font-size:12px;font-weight:500}
 .cell .t{font-size:10.5px;font-weight:500}
 .cell.amt{background:#F4F5F2}
-.cell.free{background:#E3F1EE}
-.cell.free .t{color:#0E6B5B;font-weight:700}
+.cell.free{background:var(--acbg)}
+.cell.free .t{color:var(--ac);font-weight:700}
 .cell.miss{border:1px dashed #A9B0A9;padding-top:5px}
 .cell.miss .d,.cell.miss .t{color:#5B6661}
 .cell.fut .d{color:#5B6661}
-.cell.sel{background:#fff;border:2px solid #0E6B5B;padding-top:4px}
-.cell.tod .d{color:#0E6B5B;font-weight:700}
-.cell .inc{font-size:10px;font-weight:700;color:#0E6B5B}
+.cell.sel{background:#fff;border:2px solid var(--ac);padding-top:4px}
+.cell.tod .d{color:var(--ac);font-weight:700}
+.cell .inc{font-size:10px;font-weight:700;color:var(--ac)}
 .row{display:flex;align-items:center;gap:8px}
 .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:#EDEFEB}
-.tag.inc{background:#E3F1EE;color:#0E6B5B}
+.tag.inc{background:var(--acbg);color:var(--ac)}
 .tag.sav{background:#ECE7F7;color:#5B3FA0}
 .del{height:36px;padding:0 10px;border:0;border-radius:8px;background:#F4F5F2;color:#5B6661;font-size:12px}
 .del.sure{background:#FBE9E7;color:#B3261E;font-weight:700}
 #toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#17201D;color:#fff;font-size:13px;padding:10px 16px;border-radius:20px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;z-index:9;text-align:center}
 #toast.show{opacity:.95}
 .sw{width:44px;height:26px;appearance:none;-webkit-appearance:none;background:#C9CFC8;border-radius:13px;position:relative;margin:0;transition:background .15s}
-.sw:checked{background:#0E6B5B}
+.sw:checked{background:var(--ac)}
 .sw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s}
 .sw:checked::after{left:21px}
 .err{color:#B3261E}
+.chp{height:34px;padding:0 14px;border:1px solid #E1E4DF;border-radius:17px;background:#F4F5F2;color:#17201D;font-size:13px;font-weight:500}
+.chp.dim{opacity:.5;text-decoration:line-through}
+.chp.add{background:#fff;border:1px dashed var(--ac);color:var(--ac);font-weight:700}
+.sec{font-size:14px;font-weight:700}
+.dot{width:40px;height:40px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px #D5D9D3;padding:0}
+.dot.on{box-shadow:0 0 0 3px #17201D}
+.modal{position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;z-index:5}
+.sheet{background:#fff;width:100%;border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom))}
 .hint{font-size:11.5px;color:#5B6661}
-a{color:#0E6B5B}
+a{color:var(--ac)}
 </style>
 </head>
 <body>
@@ -77,7 +93,7 @@ const TABS = {
   '설정': ['종류','이름','값1','값2','값3'],
   '기억': ['종류','키','값1','값2']
 };
-const K = { id:'chagok.sheetId', tok:'chagok.token', wel:'chagok.welcomeDate', weloff:'chagok.welcomeOff' };
+const K = { theme:'chagok.theme', id:'chagok.sheetId', tok:'chagok.token', wel:'chagok.welcomeDate', weloff:'chagok.welcomeOff' };
 const DOW = ['일','월','화','수','목','금','토'];
 const KINDS = ['지출','수입','저축'];
 
@@ -111,7 +127,7 @@ const S = {
   view: 'welcome', wvar: 'normal', wmsg: '', busy: false,
   y: +t0.slice(0, 4), m: +t0.slice(5, 7), sel: t0,
   sheetId: lsGet(K.id), gids: {}, tx: [], free: {}, opts: {}, optRow: {},
-  form: null, confirm: ''
+  form: null, confirm: '', pays: [], cats: [], subs: [], modal: null, seg: '변동비'
 };
 function newForm(date) { return { kind: '지출', date: date || todayStr(), amt: '', memo: '', pay: '', cat: '', sub: '', note: '' }; }
 
@@ -188,8 +204,16 @@ async function reload() {
     memo: r[6] || '', pay: r[7] || '', note: r[8] || '', pending: r[11] !== undefined && String(r[11]).trim() !== ''
   })).filter(t => t.date);
   S.free = {}; ((v[1] && v[1].values) || []).forEach((r, i) => { const d = norm(r[0]); if (d) S.free[d] = i + 2; });
-  S.opts = {}; S.optRow = {};
-  ((v[2] && v[2].values) || []).forEach((r, i) => { if (r[0] === '옵션' && r[1]) { S.opts[r[1]] = r[2]; S.optRow[r[1]] = i + 2; } });
+  S.opts = {}; S.optRow = {}; S.pays = []; S.cats = []; S.subs = [];
+  const on = x => x === '1' || x === 1 || x === true;
+  ((v[2] && v[2].values) || []).forEach((r, i) => {
+    const row = i + 2, t = r[0], n = r[1] == null ? '' : String(r[1]);
+    if (!n) return;
+    if (t === '옵션') { S.opts[n] = r[2]; S.optRow[n] = row; }
+    else if (t === '결제수단') S.pays.push({ row, name: n, hidden: on(r[2]) });
+    else if (t === '대분류') S.cats.push({ row, name: n, kind: r[2] || '지출', fv: r[3] || '', hidden: on(r[4]) });
+    else if (t === '소분류') S.subs.push({ row, name: n, parent: String(r[2] || ''), hidden: on(r[3]) });
+  });
 }
 async function connect() {
   if (S.busy) return; S.busy = true; S.wmsg = ''; render();
@@ -225,6 +249,56 @@ async function setOption(name, val) {
   if (S.optRow[name]) await api(SH + '/' + S.sheetId + '/values/' + enc('설정!A' + S.optRow[name] + ':C' + S.optRow[name]) + '?valueInputOption=RAW', { method: 'PUT', body: JSON.stringify({ values: [['옵션', name, val]] }) });
   else await appendRows('설정', [['옵션', name, val]]);
   await reload();
+}
+
+async function putRow(row, vals) {
+  await api(SH + '/' + S.sheetId + '/values/' + enc('설정!A' + row + ':E' + row) + '?valueInputOption=RAW', { method: 'PUT', body: JSON.stringify({ values: [vals] }) });
+}
+async function patchCells(data) {
+  if (!data.length) return;
+  await api(SH + '/' + S.sheetId + '/values:batchUpdate', { method: 'POST', body: JSON.stringify({ valueInputOption: 'RAW', data }) });
+}
+const payRow = (n, h) => ['결제수단', n, h ? '1' : '', '', ''];
+const catRow = (n, kind, fv, h) => ['대분류', n, kind, fv || '', h ? '1' : ''];
+const subRow = (n, parent, h) => ['소분류', n, parent, h ? '1' : '', ''];
+const SEED = [
+  ['지출', '변동', '식비', ['식자재', '배달', '간식', '외식']], ['지출', '변동', '교통', ['대중교통', '택시', '주유']], ['지출', '변동', '생활', ['생필품', '의류', '미용']],
+  ['지출', '변동', '문화·여가', ['영화', '여행', '취미']], ['지출', '변동', '의료·건강', ['병원', '약']], ['지출', '변동', '경조사', ['축의금', '조의금', '선물']],
+  ['지출', '고정', '주거', ['월세', '관리비']], ['지출', '고정', '통신', ['휴대폰', '인터넷']], ['지출', '고정', '보험', ['건강보험', '실손']], ['지출', '고정', '대출', ['이자']], ['지출', '고정', '구독', ['구독']],
+  ['수입', '', '급여', ['월급']], ['수입', '', '용돈', ['용돈']], ['수입', '', '기타 수입', ['기타']],
+  ['저축', '', '저축', ['적금', '예금', '청약']]
+];
+async function seedCats() {
+  const rows = [];
+  SEED.forEach(c => { rows.push(catRow(c[2], c[0], c[1], false)); c[3].forEach(n => rows.push(subRow(n, c[2], false))); });
+  await appendRows('설정', rows); await reload();
+}
+async function saveModal() {
+  const M = S.modal, name = M.name.trim();
+  if (!name) return toast('이름을 넣어 주세요', true);
+  const same = x => x.row !== M.row && x.name === name;
+  const dup = M.type === 'pay' ? S.pays.some(same) : M.type === 'cat' ? S.cats.some(same) : S.subs.some(x => same(x) && x.parent === M.parent);
+  if (dup) return toast('같은 이름이 이미 있어요', true);
+  const rowVals = M.type === 'pay' ? payRow(name, M.hidden) : M.type === 'cat' ? catRow(name, M.kind, M.fv, M.hidden) : subRow(name, M.parent, M.hidden);
+  const ok = await run(async () => {
+    if (!M.row) await appendRows('설정', [rowVals]);
+    else {
+      if (name !== M.orig) {
+        const data = [];
+        S.tx.forEach(t => {
+          if (M.type === 'pay' && t.pay === M.orig) data.push({ range: '거래!H' + t.row, values: [[name]] });
+          if (M.type === 'cat' && t.cat === M.orig) data.push({ range: '거래!E' + t.row, values: [[name]] });
+          if (M.type === 'sub' && t.cat === M.parent && t.sub === M.orig) data.push({ range: '거래!F' + t.row, values: [[name]] });
+        });
+        await patchCells(data);
+        if (M.type === 'cat') for (const sb of S.subs.filter(x => x.parent === M.orig)) await putRow(sb.row, subRow(sb.name, name, sb.hidden));
+      }
+      await putRow(M.row, rowVals);
+    }
+    await reload();
+  }, '저장했어요');
+  if (ok) S.modal = null;
+  render();
 }
 
 // ---------- 계산 ----------
@@ -323,11 +397,11 @@ function homeHtml() {
     DOW.map((w, i) => '<span style="color:' + (i === 0 ? '#B3261E' : i === 6 ? '#2F5DA8' : '#5B6661') + '">' + w + '</span>').join('') + '</div>' +
     '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px">' + cells + '</div>' +
     '<div class="row" style="margin-top:8px;padding:8px 4px 0;border-top:1px solid #EEF0EC">' +
-    '<span class="chip" style="background:#E3F1EE;color:#0E6B5B">무지출 ' + free + '일</span>' +
+    '<span class="chip" style="background:var(--acbg);color:var(--ac)">무지출 ' + free + '일</span>' +
     '<span class="chip" style="background:#FFF3DC;color:#9A5B00">미입력 ' + miss + '일</span><span style="flex:1"></span>' +
-    '<button data-act="close" style="height:44px;padding:0 14px;border:1px solid #0E6B5B;border-radius:12px;background:' + (S.confirm === 'close' ? '#0E6B5B' : '#fff') + ';color:' + (S.confirm === 'close' ? '#fff' : '#0E6B5B') + ';font-size:13px;font-weight:700">' + (S.confirm === 'close' ? miss + '일 무지출로?' : '이 달 마감') + '</button></div></div>' +
+    '<button data-act="close" style="height:44px;padding:0 14px;border:1px solid var(--ac);border-radius:12px;background:' + (S.confirm === 'close' ? 'var(--ac)' : '#fff') + ';color:' + (S.confirm === 'close' ? '#fff' : 'var(--ac)') + ';font-size:13px;font-weight:700">' + (S.confirm === 'close' ? miss + '일 무지출로?' : '이 달 마감') + '</button></div></div>' +
     '<div style="margin:10px 16px 0;background:#fff;border-radius:14px;padding:14px 16px">' +
-    '<div class="row" style="justify-content:space-between"><div style="font-size:15px;font-weight:700">' + sd[1] + '월 ' + sd[2] + '일 ' + DOW[dowOf(sel)] + '요일</div>' + (sIsT ? '<span style="font-size:12px;font-weight:700;color:#0E6B5B">오늘</span>' : '') + '</div>' +
+    '<div class="row" style="justify-content:space-between"><div style="font-size:15px;font-weight:700">' + sd[1] + '월 ' + sd[2] + '일 ' + DOW[dowOf(sel)] + '요일</div>' + (sIsT ? '<span style="font-size:12px;font-weight:700;color:var(--ac)">오늘</span>' : '') + '</div>' +
     (list.length ? '<div class="hint" style="margin:2px 0 6px">지출 합계 ' + fmt(sumExp) + '원</div>' + rows : '<div style="font-size:13px;color:#5B6661;margin-top:2px">' + (marked ? '무지출로 표시돼 있어요' : '아직 기록이 없어요') + '</div>') +
     '<div class="row" style="margin-top:12px"><button class="btn sm" data-act="add">내역 추가</button>' +
     '<button class="btn sm o" data-act="free"' + (hasExp ? ' disabled' : '') + '>' + (marked ? '무지출 해제' : sIsT ? '오늘 무지출' : '이 날 무지출') + '</button></div>' +
@@ -335,18 +409,29 @@ function homeHtml() {
     (pend ? '<div style="margin-top:10px;min-height:44px;padding:0 14px;border-radius:12px;background:#FFF3DC;color:#9A5B00;display:flex;align-items:center;font-size:13px;font-weight:700">정산 대기 ' + pend + '건 · 목록은 아직 준비 중이에요</div>' : '') +
     '</div></div>' + navHtml();
 }
+function selHtml(id, f, cur, opts, ph) {
+  const list = opts.slice(); if (cur && list.indexOf(cur) < 0) list.push(cur);
+  return '<select id="' + id + '" class="in" data-f="' + f + '"><option value="">' + ph + '</option>' + list.map(v => '<option value="' + esc(v) + '"' + (v === cur ? ' selected' : '') + '>' + esc(v) + '</option>').join('') + '</select>';
+}
 function inputHtml() {
-  const f = S.form, ex = distinct();
+  const f = S.form, ex = distinct(), hasPay = S.pays.length > 0, hasCat = S.cats.length > 0;
+  const pay = hasPay ? selHtml('f-pay', 'pay', f.pay, S.pays.filter(p => !p.hidden).map(p => p.name), '선택 안 함')
+    : '<input id="f-pay" class="in" type="text" list="dl-pay" value="' + esc(f.pay) + '" data-f="pay" placeholder="예: 국민카드">';
+  const cat = hasCat ? selHtml('f-cat', 'cat', f.cat, S.cats.filter(c => c.kind === f.kind && !c.hidden).map(c => c.name), '선택')
+    : '<input id="f-cat" class="in" type="text" list="dl-cat" value="' + esc(f.cat) + '" data-f="cat" placeholder="예: 식비">';
+  const sub = hasCat ? selHtml('f-sub', 'sub', f.sub, S.subs.filter(x => x.parent === f.cat && !x.hidden).map(x => x.name), f.cat ? '선택' : '대분류 먼저')
+    : '<input id="f-sub" class="in" type="text" list="dl-sub" value="' + esc(f.sub) + '" data-f="sub" placeholder="예: 외식">';
   return '<div class="scroll"><div class="title"><h1><span aria-hidden="true">✏️</span> 오늘은 뭘 기록할까?</h1></div>' +
     '<div class="card" style="margin-top:0"><div class="seg" role="tablist">' + KINDS.map(k => '<button data-act="kind" data-k="' + k + '" class="' + (f.kind === k ? 'on' : '') + '">' + k + '</button>').join('') + '</div>' +
     '<label class="l" for="f-date">날짜</label><div class="row"><input id="f-date" class="in" type="date" value="' + f.date + '" data-f="date" style="flex:1;min-width:0">' +
-    '<button data-act="dset" data-n="0" style="width:52px;height:44px;border:0;border-radius:10px;background:#E3F1EE;color:#0E6B5B;font-size:13px;font-weight:700">오늘</button>' +
+    '<button data-act="dset" data-n="0" style="width:52px;height:44px;border:0;border-radius:10px;background:var(--acbg);color:var(--ac);font-size:13px;font-weight:700">오늘</button>' +
     '<button data-act="dset" data-n="-1" style="width:52px;height:44px;border:1px solid #D5D9D3;border-radius:10px;background:#fff;color:#17201D;font-size:13px">어제</button></div>' +
     '<label class="l" for="f-amt">금액 (원)</label><input id="f-amt" class="in amt" type="text" inputmode="numeric" placeholder="0" value="' + esc(f.amt) + '" data-f="amt">' +
     '<label class="l" for="f-memo">내용</label><input id="f-memo" class="in" type="text" value="' + esc(f.memo) + '" data-f="memo" placeholder="예: 점심 김밥">' +
-    '<label class="l" for="f-pay">결제수단</label><input id="f-pay" class="in" type="text" list="dl-pay" value="' + esc(f.pay) + '" data-f="pay" placeholder="예: 국민카드">' +
-    '<div class="row" style="align-items:flex-end"><div style="flex:1;min-width:0"><label class="l" for="f-cat">대분류</label><input id="f-cat" class="in" type="text" list="dl-cat" value="' + esc(f.cat) + '" data-f="cat" placeholder="예: 식비"></div>' +
-    '<div style="flex:1;min-width:0"><label class="l" for="f-sub">소분류</label><input id="f-sub" class="in" type="text" list="dl-sub" value="' + esc(f.sub) + '" data-f="sub" placeholder="예: 외식"></div></div>' +
+    '<label class="l" for="f-pay">결제수단</label>' + pay +
+    '<div class="row" style="align-items:flex-end"><div style="flex:1;min-width:0"><label class="l" for="f-cat">대분류</label>' + cat + '</div>' +
+    '<div style="flex:1;min-width:0"><label class="l" for="f-sub">소분류</label>' + sub + '</div></div>' +
+    ((!hasPay || !hasCat) ? '<div class="hint" style="margin-top:8px">설정에서 결제수단과 분류를 만들어 두면 여기서 고르기만 하면 돼요</div>' : '') +
     '<label class="l" for="f-note">비고 (선택)</label><input id="f-note" class="in" type="text" value="' + esc(f.note) + '" data-f="note" placeholder="메모">' +
     '<datalist id="dl-pay">' + ex.pay.map(v => '<option value="' + esc(v) + '">').join('') + '</datalist><datalist id="dl-cat">' + ex.cat.map(v => '<option value="' + esc(v) + '">').join('') + '</datalist><datalist id="dl-sub">' + ex.sub.map(v => '<option value="' + esc(v) + '">').join('') + '</datalist></div>' +
     '<div class="row" style="margin:12px 16px 0"><button class="btn o" data-act="save" data-cont="1">저장하고 계속</button><button class="btn" data-act="save">저장</button></div></div>' + navHtml();
@@ -359,16 +444,50 @@ function statsHtml() {
   return '<div class="scroll"><div class="title"><h1><span aria-hidden="true">📊</span> 비교 들어간다</h1></div>' +
     '<div class="card" style="margin-top:0"><div style="font-size:14px;font-weight:700">통계는 다음 단계에서 만들어요</div><div class="hint" style="margin-top:6px">지금은 달력에서 입력하고 확인하는 부분까지 연결했어요.</div></div></div>' + navHtml();
 }
+const THEMES = { green: ['#0E6B5B', '#E3F1EE', '그린'], navy: ['#1F3A68', '#E4EAF5', '네이비'], gray: ['#3D4752', '#E9ECEF', '그레이'] };
+function applyTheme() {
+  const t = THEMES[lsGet(K.theme)] || THEMES.green, r = document.documentElement.style;
+  r.setProperty('--ac', t[0]); r.setProperty('--acbg', t[1]);
+}
+const SEGS = ['변동비', '고정비', '수입', '저축'];
+function inSeg(c, seg) { return seg === '수입' ? c.kind === '수입' : seg === '저축' ? c.kind === '저축' : c.kind === '지출' && (seg === '고정비' ? c.fv === '고정' : c.fv !== '고정'); }
+function modalHtml() {
+  const M = S.modal; if (!M) return '';
+  const T = { pay: '결제수단', cat: '대분류', sub: '소분류' }[M.type];
+  return '<div class="modal" data-act="mclose"><div class="sheet" data-act="noop" role="dialog" aria-label="' + T + '">' +
+    '<div style="font-size:16px;font-weight:700">' + T + (M.row ? ' 고치기' : ' 추가') + (M.type === 'sub' ? ' · ' + esc(M.parent) : '') + '</div>' +
+    '<label class="l" for="m-name">이름</label><input id="m-name" class="in" type="text" value="' + esc(M.name) + '" autocomplete="off">' +
+    (M.row ? '<div class="hint" style="margin-top:8px">이름을 바꾸면 지난 기록의 이름도 같이 바뀌어요. 지우는 대신 숨기면 기록은 그대로 남아요.</div>' : '') +
+    '<div class="row" style="margin-top:16px">' + (M.row ? '<button class="btn o" data-act="mhide" style="flex:1">' + (M.hidden ? '다시 보이기' : '숨기기') + '</button>' : '<button class="btn o" data-act="mclose" style="flex:1">취소</button>') +
+    '<button class="btn" data-act="msave" style="flex:1">저장</button></div></div></div>';
+}
 function settingsHtml() {
   const url = 'https://docs.google.com/spreadsheets/d/' + S.sheetId;
+  const chips = (arr, act, extra) => arr.map(x => '<button class="chp' + (x.hidden ? ' dim' : '') + '" data-act="' + act + '" data-row="' + x.row + '">' + esc(x.name) + '</button>').join('');
+  const cats = S.cats.filter(c => inSeg(c, S.seg));
+  const catCards = cats.map(c => '<div style="border-top:1px solid #EEF0EC;padding:10px 0 4px">' +
+    '<div class="row" style="justify-content:space-between;margin-bottom:8px"><button data-act="ecat" data-row="' + c.row + '" style="border:0;background:none;padding:0;font-size:14px;font-weight:700;color:' + (c.hidden ? '#9AA39E' : '#17201D') + ';text-decoration:' + (c.hidden ? 'line-through' : 'none') + '">' + esc(c.name) + ' ›</button>' +
+    (c.kind === '지출' ? '<select class="in" style="width:96px;height:36px;font-size:13px" data-act="fv" data-row="' + c.row + '" aria-label="고정비 변동비"><option' + (c.fv !== '고정' ? ' selected' : '') + '>변동비</option><option' + (c.fv === '고정' ? ' selected' : '') + '>고정비</option></select>' : '') + '</div>' +
+    '<div class="row" style="flex-wrap:wrap;gap:6px">' + chips(S.subs.filter(x => x.parent === c.name), 'esub') + '<button class="chp add" data-act="nsub" data-p="' + esc(c.name) + '">+</button></div></div>').join('');
   return '<div class="scroll"><div class="title"><h1><span aria-hidden="true">🛠️</span> 사부작 사부작 세팅하기</h1></div>' +
     '<div class="card" style="margin-top:0"><div class="row" style="justify-content:space-between"><div><div class="hint">연결된 구글 시트</div><div style="font-size:14px;font-weight:500">차곡차곡 · 내 구글 드라이브</div></div>' +
-    '<a href="' + url + '" target="_blank" rel="noopener" style="height:36px;padding:0 14px;border-radius:18px;background:#E3F1EE;color:#0E6B5B;font-size:13px;font-weight:700;display:inline-flex;align-items:center;text-decoration:none">시트 열기</a></div>' +
+    '<a href="' + url + '" target="_blank" rel="noopener" style="height:36px;padding:0 14px;border-radius:18px;background:var(--acbg);color:var(--ac);font-size:13px;font-weight:700;display:inline-flex;align-items:center;text-decoration:none">시트 열기</a></div>' +
     '<div style="border-top:1px solid #EEF0EC;margin-top:10px;padding-top:10px" class="row"><div style="flex:1"><div style="font-size:14px">기록 시작 월</div><div class="hint">이전 달은 숨겨질 뿐 지워지지 않아요</div></div>' +
     '<input type="month" class="in" style="width:150px" value="' + startMonth() + '" data-act="startm" aria-label="기록 시작 월"></div></div>' +
+    '<div class="card"><div class="row" style="justify-content:space-between;margin-bottom:8px"><div class="sec">결제수단</div><div class="hint">눌러서 이름 고치기·숨기기</div></div>' +
+    '<div class="row" style="flex-wrap:wrap;gap:6px">' + chips(S.pays, 'epay') + '<button class="chp add" data-act="npay">+ 추가</button></div>' +
+    (S.pays.length ? '' : '<div class="hint" style="margin-top:8px">예: 현금, 국민카드, 카카오뱅크</div>') + '</div>' +
+    '<div class="card"><div class="row" style="justify-content:space-between;margin-bottom:8px"><div class="sec">분류</div><div class="hint">고정비·변동비는 대분류 단위</div></div>' +
+    '<div class="seg">' + SEGS.map(g => '<button data-act="seg" data-g="' + g + '" class="' + (S.seg === g ? 'on' : '') + '">' + g + '</button>').join('') + '</div>' +
+    '<div style="margin-top:8px">' + (cats.length ? catCards : '<div class="hint" style="padding:10px 0">' + (S.cats.length ? '이 보기에는 아직 대분류가 없어요' : '아직 분류가 없어요') + '</div>') + '</div>' +
+    '<button class="chp add" data-act="ncat" style="width:100%;height:40px;margin-top:8px">+ 대분류 추가</button>' +
+    (S.cats.length ? '' : '<button class="btn sm o" data-act="seed" style="width:100%;margin-top:8px">기본 분류 한꺼번에 넣기</button><div class="hint" style="margin-top:6px">식비·교통·주거·급여·저축(적금·예금·청약) 등 흔한 분류를 넣어요. 나중에 고치거나 숨길 수 있어요</div>') + '</div>' +
+    '<div class="card"><div class="row" style="justify-content:space-between"><div class="sec">테마 색</div><div class="row" style="gap:12px">' +
+    Object.keys(THEMES).map(k => '<button class="dot' + ((lsGet(K.theme) || 'green') === k ? ' on' : '') + '" data-act="theme" data-t="' + k + '" style="background:' + THEMES[k][0] + '" aria-label="' + THEMES[k][2] + '"></button>').join('') + '</div></div>' +
+    '<div class="hint" style="margin-top:8px">버튼과 선택된 탭 같은 포인트 색만 바뀌어요 · 이 기기에만 저장돼요</div></div>' +
     '<div class="card"><label class="row" style="min-height:48px;justify-content:space-between"><span><span style="font-size:14px">열 때 입장 화면 보이기</span><span class="hint" style="display:block">하루 첫 실행에서만 나와요 · 이 기기에만 저장돼요</span></span>' +
     '<input type="checkbox" class="sw" data-act="weloff"' + (lsGet(K.weloff) === '1' ? '' : ' checked') + '></label></div>' +
-    '<div class="card"><button class="btn sm o" data-act="disconnect" style="width:100%">이 기기에서 연결 해제</button><div class="hint" style="margin-top:8px">시트와 기록은 그대로 남아요. 다시 입장하면 같은 시트에 연결돼요.</div></div></div>' + navHtml();
+    '<div class="card"><button class="btn sm o" data-act="disconnect" style="width:100%">이 기기에서 연결 해제</button><div class="hint" style="margin-top:8px">시트와 기록은 그대로 남아요. 다시 입장하면 같은 시트에 연결돼요.</div></div></div>' + navHtml() + modalHtml();
 }
 function render() {
   const app = $('app'), v = S.view;
@@ -378,6 +497,7 @@ function render() {
 }
 
 // ---------- 동작 ----------
+function openModal(m) { S.modal = Object.assign({ hidden: false }, m); render(); const n = $('m-name'); if (n) { n.focus(); } }
 function go(v) { S.view = v; S.confirm = ''; if (v === 'input' && !S.form) S.form = newForm(S.sel); render(); }
 async function saveTx(cont) {
   const f = S.form, amt = Number(String(f.amt).replace(/[^0-9]/g, ''));
@@ -395,6 +515,19 @@ async function saveTx(cont) {
   else { S.form = null; go('home'); }
 }
 const actions = {
+  noop: () => {},
+  seg: el => { S.seg = el.dataset.g; render(); },
+  theme: el => { lsSet(K.theme, el.dataset.t); applyTheme(); render(); },
+  seed: async () => { await run(seedCats, '기본 분류를 넣었어요'); render(); },
+  npay: () => openModal({ type: 'pay', name: '' }),
+  epay: el => { const x = S.pays.find(p => p.row === Number(el.dataset.row)); openModal({ type: 'pay', row: x.row, name: x.name, orig: x.name, hidden: x.hidden }); },
+  ncat: () => openModal({ type: 'cat', name: '', kind: S.seg === '수입' ? '수입' : S.seg === '저축' ? '저축' : '지출', fv: S.seg === '고정비' ? '고정' : S.seg === '변동비' ? '변동' : '' }),
+  ecat: el => { const x = S.cats.find(p => p.row === Number(el.dataset.row)); openModal({ type: 'cat', row: x.row, name: x.name, orig: x.name, kind: x.kind, fv: x.fv, hidden: x.hidden }); },
+  nsub: el => openModal({ type: 'sub', name: '', parent: el.dataset.p }),
+  esub: el => { const x = S.subs.find(p => p.row === Number(el.dataset.row)); openModal({ type: 'sub', row: x.row, name: x.name, orig: x.name, parent: x.parent, hidden: x.hidden }); },
+  mclose: () => { S.modal = null; render(); },
+  msave: () => saveModal(),
+  mhide: () => { S.modal.hidden = !S.modal.hidden; saveModal(); },
   connect: () => connect(),
   nav: el => go(el.dataset.v),
   mon: el => { let m = S.m + Number(el.dataset.n), y = S.y; if (m < 1) { m = 12; y--; } if (m > 12) { m = 1; y++; } S.y = y; S.m = m; S.confirm = ''; render(); },
@@ -422,14 +555,14 @@ const actions = {
     await run(async () => { await deleteRows('거래', [row]); await reload(); }, '삭제했어요');
     render();
   },
-  kind: el => { S.form.kind = el.dataset.k; render(); },
+  kind: el => { S.form.kind = el.dataset.k; S.form.cat = ''; S.form.sub = ''; render(); },
   dset: el => { S.form.date = addDays(todayStr(), Number(el.dataset.n)); render(); },
   save: el => saveTx(!!el.dataset.cont),
   disconnect: () => { [K.id, K.tok, K.wel].forEach(lsDel); token = null; S.sheetId = null; S.tx = []; S.free = {}; S.opts = {}; S.form = null; S.view = 'welcome'; S.wvar = 'normal'; S.wmsg = ''; render(); },
   weloff: el => { if (el.checked) lsDel(K.weloff); else lsSet(K.weloff, '1'); toast(el.checked ? '입장 화면을 보여 드릴게요' : '입장 화면을 건너뛸게요'); }
 };
 document.addEventListener('click', e => {
-  const el = e.target.closest('[data-act]'); if (!el || el.tagName === 'INPUT') return;
+  const el = e.target.closest('[data-act]'); if (!el || el.tagName === 'INPUT' || el.tagName === 'SELECT') return;
   const fn = actions[el.dataset.act]; if (fn && !el.disabled) fn(el);
 });
 document.addEventListener('change', async e => {
@@ -437,14 +570,25 @@ document.addEventListener('change', async e => {
   if (el.dataset.act === 'weloff') actions.weloff(el);
   if (el.dataset.act === 'startm' && el.value) { await run(() => setOption('기록 시작 월', el.value), '시작 월을 바꿨어요'); render(); }
   if (el.dataset.f === 'date') S.form.date = el.value;
+  if (el.tagName === 'SELECT' && el.dataset.f && S.form) { S.form[el.dataset.f] = el.value; if (el.dataset.f === 'cat') S.form.sub = ''; render(); }
+  if (el.dataset.act === 'fv') {
+    const c = S.cats.find(x => x.row === Number(el.dataset.row)); const fv = el.value === '고정비' ? '고정' : '변동';
+    await run(async () => { await putRow(c.row, catRow(c.name, c.kind, fv, c.hidden)); await reload(); }, '바꿨어요'); render();
+  }
 });
 document.addEventListener('input', e => {
-  const el = e.target, f = el.dataset && el.dataset.f; if (!f || !S.form) return;
+  const el = e.target;
+  if (el.id === 'm-name' && S.modal) { S.modal.name = el.value; return; }
+  const f = el.dataset && el.dataset.f; if (!f || !S.form || el.tagName === 'SELECT') return;
   if (f === 'amt') { const n = el.value.replace(/[^0-9]/g, ''); S.form.amt = n ? fmt(Number(n)) : ''; el.value = S.form.amt; }
   else S.form[f] = el.value;
 });
 
 // ---------- 시작 ----------
+applyTheme();
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
 (function boot() {
   const today = todayStr(), shownToday = lsGet(K.wel) === today, wantWelcome = lsGet(K.weloff) !== '1';
   if (S.sheetId && tokenValid() && (shownToday || !wantWelcome)) { S.view = 'welcome'; S.wvar = 'normal'; render(); enterSilently(); return; }
