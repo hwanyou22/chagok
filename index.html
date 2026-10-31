@@ -2,66 +2,72 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>차곡차곡 · 연결 시험</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F4F5F2">
+<title>차곡차곡</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,'Noto Sans KR',sans-serif;background:#F4F5F2;color:#17201D}
-main{max-width:430px;margin:0 auto;padding:24px 16px 48px}
-h1{font-size:22px;margin:0 0 4px;color:#0A4A40}
-.sub{font-size:13px;color:#5B6661;margin-bottom:16px}
-.card{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px}
-button{font:inherit;height:48px;border-radius:12px;border:0;background:#0E6B5B;color:#fff;font-weight:700;font-size:15px;padding:0 16px;width:100%}
-button.sec{background:#E3F1EE;color:#0E6B5B}
-button:disabled{opacity:.5}
-label{display:block;font-size:12px;color:#5B6661;margin:10px 0 4px}
-input,select{font:inherit;width:100%;height:44px;border:1px solid #D5D9D3;border-radius:10px;padding:0 12px;background:#fff}
-.row{display:flex;gap:8px}
-.row>*{flex:1}
-#status{font-size:13px;line-height:1.5;white-space:pre-wrap}
-.warn{background:#FFF3DC;color:#9A5B00;border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:12px}
-.err{color:#C62828}
-table{width:100%;border-collapse:collapse;font-size:13px}
-td,th{padding:6px 4px;border-bottom:1px solid #EEF0EC;text-align:left}
-td.n{text-align:right}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:'Noto Sans KR',system-ui,-apple-system,sans-serif;font-variant-numeric:tabular-nums;color:#17201D;background:#F4F5F2}
+button,input,select{font-family:inherit}
+button{cursor:pointer}
+#app{max-width:430px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;background:#F4F5F2;position:relative;overflow:hidden}
+.scroll{flex:1;overflow-y:auto;padding-bottom:12px}
+nav{height:calc(64px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:#fff;border-top:1px solid #E1E4DF;display:flex;flex:none}
+nav button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#5B6661;font-size:11px;font-weight:500}
+nav button.on{color:#0E6B5B;font-weight:700}
+h1{margin:0;font-size:20px;font-weight:700}
+.title{padding:24px 16px 12px}
+.card{background:#fff;border-radius:14px;padding:14px;margin:12px 16px 0}
+label.l{display:block;font-size:12px;color:#5B6661;margin:12px 0 4px}
+.in{width:100%;height:44px;border:1px solid #D5D9D3;border-radius:10px;padding:0 12px;font-size:14.5px;font-weight:500;color:#17201D;background:#fff}
+.in.amt{height:52px;border:2px solid #0E6B5B;text-align:right;font-size:22px;font-weight:700;padding:0 14px}
+.seg{background:#E8EBE6;border-radius:10px;padding:3px;display:flex;gap:2px}
+.seg button{flex:1;height:40px;border:0;border-radius:8px;background:transparent;color:#5B6661;font-size:14px;font-weight:500}
+.seg button.on{background:#fff;color:#17201D;font-weight:700}
+.btn{height:52px;border-radius:14px;border:0;background:#0E6B5B;color:#fff;font-size:15px;font-weight:700;flex:1}
+.btn.o{background:#fff;border:1px solid #0E6B5B;color:#0E6B5B;font-size:14px}
+.btn.sm{height:44px;border-radius:12px;font-size:14px}
+.btn:disabled{opacity:.5}
+.chip{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:14px;font-size:12.5px;font-weight:700}
+.cell{height:58px;border:0;background:none;border-radius:10px;padding:6px 2px 0;display:flex;flex-direction:column;align-items:center;gap:3px;color:#17201D;width:100%}
+.cell .d{font-size:12px;font-weight:500}
+.cell .t{font-size:10.5px;font-weight:500}
+.cell.amt{background:#F4F5F2}
+.cell.free{background:#E3F1EE}
+.cell.free .t{color:#0E6B5B;font-weight:700}
+.cell.miss{border:1px dashed #A9B0A9;padding-top:5px}
+.cell.miss .d,.cell.miss .t{color:#5B6661}
+.cell.fut .d{color:#5B6661}
+.cell.sel{background:#fff;border:2px solid #0E6B5B;padding-top:4px}
+.cell.tod .d{color:#0E6B5B;font-weight:700}
+.cell .inc{font-size:10px;font-weight:700;color:#0E6B5B}
+.row{display:flex;align-items:center;gap:8px}
+.tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:#EDEFEB}
+.tag.inc{background:#E3F1EE;color:#0E6B5B}
+.tag.sav{background:#ECE7F7;color:#5B3FA0}
+.del{height:36px;padding:0 10px;border:0;border-radius:8px;background:#F4F5F2;color:#5B6661;font-size:12px}
+.del.sure{background:#FBE9E7;color:#B3261E;font-weight:700}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#17201D;color:#fff;font-size:13px;padding:10px 16px;border-radius:20px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;z-index:9;text-align:center}
+#toast.show{opacity:.95}
+.sw{width:44px;height:26px;appearance:none;-webkit-appearance:none;background:#C9CFC8;border-radius:13px;position:relative;margin:0;transition:background .15s}
+.sw:checked{background:#0E6B5B}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s}
+.sw:checked::after{left:21px}
+.err{color:#B3261E}
+.hint{font-size:11.5px;color:#5B6661}
 a{color:#0E6B5B}
 </style>
 </head>
 <body>
-<main>
-  <h1>차곡차곡</h1>
-  <div class="sub">구글 시트 연결 시험 화면 (실제 앱 화면이 아니에요)</div>
-
-  <div id="cfgWarn" class="warn" hidden>아래 코드의 CLIENT_ID에 구글 클라이언트 ID를 넣어야 로그인돼요.</div>
-
-  <div class="card">
-    <button id="btnConnect">구글로 계속하기</button>
-    <div id="status" style="margin-top:10px">아직 연결 안 됨</div>
-  </div>
-
-  <div class="card" id="saveCard" hidden>
-    <div class="row">
-      <div><label for="fDate">날짜</label><input id="fDate" type="date"></div>
-      <div><label for="fKind">구분</label>
-        <select id="fKind"><option>지출</option><option>수입</option><option>저축</option></select></div>
-    </div>
-    <label for="fAmt">금액</label><input id="fAmt" type="number" inputmode="numeric" placeholder="예: 4500">
-    <label for="fMemo">내용</label><input id="fMemo" type="text" placeholder="예: 점심">
-    <div class="row" style="margin-top:12px">
-      <button id="btnSave">거래 저장</button>
-      <button id="btnLoad" class="sec">목록 불러오기</button>
-    </div>
-  </div>
-
-  <div class="card" id="listCard" hidden>
-    <table id="list"></table>
-  </div>
-</main>
+<div id="app"></div>
+<div id="toast" role="status"></div>
 
 <script>
-// ===== 설정: 구글 클라우드 콘솔에서 만든 클라이언트 ID를 여기에 넣어요 =====
+// ===== 구글 클라우드 콘솔에서 만든 클라이언트 ID =====
 const CLIENT_ID = '1042667484761-6m5sr908f13n6ph13g63mujmkls8jhve.apps.googleusercontent.com';
-// =========================================================================
+// ====================================================
 const SCOPE = 'https://www.googleapis.com/auth/drive.file';
 const SHEET_NAME = '차곡차곡';
 const TABS = {
@@ -71,148 +77,380 @@ const TABS = {
   '설정': ['종류','이름','값1','값2','값3'],
   '기억': ['종류','키','값1','값2']
 };
-const LS = { id: 'chagok.sheetId' };
+const K = { id:'chagok.sheetId', tok:'chagok.token', wel:'chagok.welcomeDate', weloff:'chagok.welcomeOff' };
+const DOW = ['일','월','화','수','목','금','토'];
+const KINDS = ['지출','수입','저축'];
 
-let token = null, tokenExp = 0, tokenClient = null, sheetId = null, pendingResolve = null, pendingReject = null;
+// ---------- 작은 도구 ----------
 const $ = id => document.getElementById(id);
-const say = (t, err) => { const s = $('status'); s.textContent = t; s.className = err ? 'err' : ''; };
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
-
-function initToken() {
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPE,
-    callback: r => {
-      if (r && r.access_token) {
-        token = r.access_token;
-        tokenExp = Date.now() + (Number(r.expires_in || 3600) - 60) * 1000;
-        if (pendingResolve) pendingResolve(token);
-      } else if (pendingReject) {
-        pendingReject(new Error((r && r.error) || '로그인 실패'));
-      }
-      pendingResolve = pendingReject = null;
-    },
-    error_callback: e => {
-      if (pendingReject) pendingReject(new Error(e && e.type || '로그인 창이 닫혔어요'));
-      pendingResolve = pendingReject = null;
-    }
-  });
+const lsDel = k => { try { localStorage.removeItem(k); } catch (e) {} };
+const pad = n => String(n).padStart(2, '0');
+const dstr = (y, m, d) => y + '-' + pad(m) + '-' + pad(d);
+const todayStr = () => { const d = new Date(); return dstr(d.getFullYear(), d.getMonth() + 1, d.getDate()); };
+const addDays = (s, n) => { const [y, m, d] = s.split('-').map(Number); const t = new Date(y, m - 1, d + n); return dstr(t.getFullYear(), t.getMonth() + 1, t.getDate()); };
+const fmt = n => Number(n).toLocaleString('en-US');
+const short = n => n >= 1000000 ? Math.round(n / 10000) + '만' : fmt(n);
+const dowOf = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d).getDay(); };
+function norm(v) {
+  if (typeof v === 'number' && v > 20000) { const d = new Date(Date.UTC(1899, 11, 30) + v * 864e5); return dstr(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate()); }
+  const m = String(v || '').trim().match(/^(\d{4})[-./ ]+(\d{1,2})[-./ ]+(\d{1,2})/);
+  return m ? dstr(+m[1], +m[2], +m[3]) : '';
+}
+let toastTimer;
+function toast(msg, err) {
+  const t = $('toast'); t.textContent = msg; t.style.background = err ? '#B3261E' : '#17201D'; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-// 처음엔 동의 창, 이후엔 조용히 갱신해요. 버튼을 누른 직후에 불러야 팝업이 막히지 않아요.
-function getToken(forceConsent) {
-  if (!forceConsent && token && Date.now() < tokenExp) return Promise.resolve(token);
-  return new Promise((res, rej) => {
-    pendingResolve = res; pendingReject = rej;
-    tokenClient.requestAccessToken({ prompt: forceConsent ? 'consent' : '' });
-  });
-}
+// ---------- 상태 ----------
+const t0 = todayStr();
+const S = {
+  view: 'welcome', wvar: 'normal', wmsg: '', busy: false,
+  y: +t0.slice(0, 4), m: +t0.slice(5, 7), sel: t0,
+  sheetId: lsGet(K.id), gids: {}, tx: [], free: {}, opts: {}, optRow: {},
+  form: null, confirm: ''
+};
+function newForm(date) { return { kind: '지출', date: date || todayStr(), amt: '', memo: '', pay: '', cat: '', sub: '', note: '' }; }
 
+// ---------- 구글 로그인 ----------
+let token = null, tokenExp = 0, tokenClient = null, pendingRes = null, pendingRej = null, gisReady = null;
+(function loadSaved() {
+  try { const o = JSON.parse(lsGet(K.tok) || 'null'); if (o && o.exp > Date.now()) { token = o.t; tokenExp = o.exp; } } catch (e) {}
+})();
+const tokenValid = () => !!token && Date.now() < tokenExp;
+function loadGis() {
+  if (gisReady) return gisReady;
+  gisReady = new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = 'https://accounts.google.com/gsi/client';
+    s.onload = () => {
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CLIENT_ID, scope: SCOPE,
+        callback: r => {
+          if (r && r.access_token) {
+            token = r.access_token; tokenExp = Date.now() + (Number(r.expires_in || 3600) - 120) * 1000;
+            lsSet(K.tok, JSON.stringify({ t: token, exp: tokenExp }));
+            if (pendingRes) pendingRes(token);
+          } else if (pendingRej) pendingRej(new Error((r && r.error) || '로그인에 실패했어요'));
+          pendingRes = pendingRej = null;
+        },
+        error_callback: e => { if (pendingRej) pendingRej(new Error(e && e.type === 'popup_closed' ? '로그인 창이 닫혔어요' : '로그인 창을 열 수 없어요')); pendingRes = pendingRej = null; }
+      });
+      res();
+    };
+    s.onerror = () => { gisReady = null; rej(new Error('구글 로그인 스크립트를 불러오지 못했어요. 인터넷을 확인해 주세요.')); };
+    document.head.appendChild(s);
+  });
+  return gisReady;
+}
+// 버튼을 누른 직후에 불러야 팝업이 막히지 않아요
+function getToken(consent) {
+  if (!consent && tokenValid()) return Promise.resolve(token);
+  if (!tokenClient) return Promise.reject(new Error('로그인 준비 중이에요. 잠시 뒤 다시 눌러 주세요.'));
+  return new Promise((res, rej) => { pendingRes = res; pendingRej = rej; tokenClient.requestAccessToken({ prompt: consent ? 'consent' : '' }); });
+}
 async function api(url, opts = {}, retry = true) {
-  const t = await getToken(false);
-  const r = await fetch(url, Object.assign({}, opts, {
-    headers: Object.assign({ Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }, opts.headers || {})
-  }));
-  if (r.status === 401 && retry) { token = null; return api(url, opts, false); }
-  if (!r.ok) {
-    let m = ''; try { m = (await r.json()).error.message; } catch (e) {}
-    throw new Error(r.status + ' ' + m);
-  }
+  if (!tokenValid()) throw Object.assign(new Error('연결이 만료됐어요'), { expired: true });
+  const r = await fetch(url, Object.assign({}, opts, { headers: Object.assign({ Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, opts.headers || {}) }));
+  if (r.status === 401) { token = null; lsDel(K.tok); throw Object.assign(new Error('연결이 만료됐어요'), { expired: true }); }
+  if (!r.ok) { let m = ''; try { m = (await r.json()).error.message; } catch (e) {} throw new Error(r.status + ' ' + m); }
   return r.json();
 }
+const SH = 'https://sheets.googleapis.com/v4/spreadsheets';
+const enc = encodeURIComponent;
 
+// ---------- 시트 ----------
 async function findSheet() {
-  const saved = lsGet(LS.id);
-  if (saved) {
-    try { await api('https://sheets.googleapis.com/v4/spreadsheets/' + saved + '?fields=spreadsheetId'); return saved; }
-    catch (e) { /* 지워졌거나 접근 불가면 아래에서 다시 찾아요 */ }
-  }
-  const q = encodeURIComponent("name='" + SHEET_NAME + "' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false");
+  const saved = lsGet(K.id);
+  if (saved) { try { await api(SH + '/' + saved + '?fields=spreadsheetId'); return saved; } catch (e) { if (e.expired) throw e; } }
+  const q = enc("name='" + SHEET_NAME + "' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false");
   const j = await api('https://www.googleapis.com/drive/v3/files?q=' + q + '&orderBy=createdTime&fields=files(id,name)');
   return j.files && j.files.length ? j.files[0].id : null;
 }
-
 async function createSheet() {
   const names = Object.keys(TABS);
-  const j = await api('https://sheets.googleapis.com/v4/spreadsheets', {
-    method: 'POST',
-    body: JSON.stringify({
-      properties: { title: SHEET_NAME, locale: 'ko_KR' },
-      sheets: names.map(n => ({ properties: { title: n, gridProperties: { frozenRowCount: 1 } } }))
-    })
-  });
-  await api('https://sheets.googleapis.com/v4/spreadsheets/' + j.spreadsheetId + '/values:batchUpdate', {
-    method: 'POST',
-    body: JSON.stringify({
-      valueInputOption: 'RAW',
-      data: names.map(n => ({ range: n + '!A1', values: [TABS[n]] }))
-    })
-  });
+  const j = await api(SH, { method: 'POST', body: JSON.stringify({ properties: { title: SHEET_NAME, locale: 'ko_KR' }, sheets: names.map(n => ({ properties: { title: n, gridProperties: { frozenRowCount: 1 } } })) }) });
+  await api(SH + '/' + j.spreadsheetId + '/values:batchUpdate', { method: 'POST', body: JSON.stringify({ valueInputOption: 'RAW', data: names.map(n => ({ range: n + '!A1', values: [TABS[n]] })) }) });
   return j.spreadsheetId;
 }
-
+async function loadGids() {
+  const j = await api(SH + '/' + S.sheetId + '?fields=sheets.properties(sheetId,title)');
+  S.gids = {}; (j.sheets || []).forEach(s => { S.gids[s.properties.title] = s.properties.sheetId; });
+}
+async function reload() {
+  const qs = ['거래!A2:L', '무지출일!A2:A', '설정!A2:E'].map(r => 'ranges=' + enc(r)).join('&');
+  const j = await api(SH + '/' + S.sheetId + '/values:batchGet?valueRenderOption=UNFORMATTED_VALUE&' + qs);
+  const v = j.valueRanges || [];
+  S.tx = ((v[0] && v[0].values) || []).map((r, i) => ({
+    row: i + 2, date: norm(r[0]), time: r[1] || '', kind: r[2] || '', amt: Number(r[3]) || 0, cat: r[4] || '', sub: r[5] || '',
+    memo: r[6] || '', pay: r[7] || '', note: r[8] || '', pending: r[11] !== undefined && String(r[11]).trim() !== ''
+  })).filter(t => t.date);
+  S.free = {}; ((v[1] && v[1].values) || []).forEach((r, i) => { const d = norm(r[0]); if (d) S.free[d] = i + 2; });
+  S.opts = {}; S.optRow = {};
+  ((v[2] && v[2].values) || []).forEach((r, i) => { if (r[0] === '옵션' && r[1]) { S.opts[r[1]] = r[2]; S.optRow[r[1]] = i + 2; } });
+}
 async function connect() {
-  $('btnConnect').disabled = true;
+  if (S.busy) return; S.busy = true; S.wmsg = ''; render();
   try {
-    say('구글 로그인 중…');
-    await getToken(!lsGet(LS.id));
-    say('시트를 찾는 중…');
-    let id = await findSheet(), made = false;
-    if (!id) { say('시트를 만드는 중…'); id = await createSheet(); made = true; }
-    sheetId = id; lsSet(LS.id, id);
-    say((made ? '새 시트를 만들었어요.\n' : '기존 시트에 연결했어요.\n') + '시트 열기: https://docs.google.com/spreadsheets/d/' + id);
-    $('saveCard').hidden = false;
-    $('fDate').value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-    $('btnConnect').textContent = '다시 연결하기';
-  } catch (e) {
-    say('연결 실패: ' + e.message, true);
-  } finally { $('btnConnect').disabled = false; }
+    // 팝업이 막히지 않게, 스크립트가 이미 준비됐으면 바로 로그인 창을 열어요
+    await (tokenClient ? getToken(!S.sheetId) : loadGis().then(() => getToken(!S.sheetId)));
+    let id = await findSheet(); if (!id) id = await createSheet();
+    S.sheetId = id; lsSet(K.id, id);
+    await loadGids(); await reload();
+    lsSet(K.wel, todayStr()); S.view = 'home';
+  } catch (e) { S.wmsg = e.message; if (e.expired) S.wvar = 'reconnect'; }
+  S.busy = false; render();
+}
+async function enterSilently() {
+  try { await loadGis().catch(() => {}); if (!S.sheetId) throw Object.assign(new Error('x'), { expired: true }); await loadGids(); await reload(); S.view = 'home'; }
+  catch (e) { S.view = 'welcome'; S.wvar = 'reconnect'; S.wmsg = e.expired ? '' : e.message; }
+  render();
+}
+function onExpired() { S.view = 'welcome'; S.wvar = 'reconnect'; S.wmsg = ''; render(); }
+async function run(fn, okMsg) {
+  if (S.busy) return false; S.busy = true;
+  try { await fn(); if (okMsg) toast(okMsg); S.busy = false; return true; }
+  catch (e) { S.busy = false; if (e.expired) onExpired(); else toast(e.message, true); return false; }
+}
+async function appendRows(tab, rows) {
+  await api(SH + '/' + S.sheetId + '/values/' + enc(tab + '!A:L') + ':append?valueInputOption=RAW&insertDataOption=INSERT_ROWS', { method: 'POST', body: JSON.stringify({ values: rows }) });
+}
+async function deleteRows(tab, rows) {
+  const reqs = rows.slice().sort((a, b) => b - a).map(r => ({ deleteDimension: { range: { sheetId: S.gids[tab], dimension: 'ROWS', startIndex: r - 1, endIndex: r } } }));
+  await api(SH + '/' + S.sheetId + ':batchUpdate', { method: 'POST', body: JSON.stringify({ requests: reqs }) });
+}
+async function setOption(name, val) {
+  if (S.optRow[name]) await api(SH + '/' + S.sheetId + '/values/' + enc('설정!A' + S.optRow[name] + ':C' + S.optRow[name]) + '?valueInputOption=RAW', { method: 'PUT', body: JSON.stringify({ values: [['옵션', name, val]] }) });
+  else await appendRows('설정', [['옵션', name, val]]);
+  await reload();
 }
 
-async function save() {
-  const amt = Number($('fAmt').value);
-  if (!amt) { say('금액을 넣어 주세요', true); return; }
-  $('btnSave').disabled = true;
-  try {
-    const row = [$('fDate').value, '', $('fKind').value, amt, '', '', $('fMemo').value, '', '', '', '', ''];
-    await api('https://sheets.googleapis.com/v4/spreadsheets/' + sheetId + '/values/' + encodeURIComponent('거래!A:L') +
-      ':append?valueInputOption=RAW&insertDataOption=INSERT_ROWS', { method: 'POST', body: JSON.stringify({ values: [row] }) });
-    say('저장했어요.'); $('fAmt').value = ''; $('fMemo').value = '';
-    await load();
-  } catch (e) { say('저장 실패: ' + e.message, true); }
-  finally { $('btnSave').disabled = false; }
+// ---------- 계산 ----------
+function monthAgg(y, m) {
+  const p = y + '-' + pad(m) + '-', a = {};
+  S.tx.forEach(t => {
+    if (t.pending || t.date.indexOf(p) !== 0) return;
+    const o = a[+t.date.slice(8, 10)] || (a[+t.date.slice(8, 10)] = { exp: 0, inc: 0, sav: 0, n: 0 });
+    o.n++; if (t.kind === '지출') o.exp += t.amt; else if (t.kind === '수입') o.inc += t.amt; else if (t.kind === '저축') o.sav += t.amt;
+  });
+  return a;
+}
+function startMonth() {
+  if (S.opts['기록 시작 월']) return String(S.opts['기록 시작 월']).slice(0, 7);
+  const ds = S.tx.map(t => t.date).sort(); return (ds[0] || todayStr()).slice(0, 7);
+}
+function dayState(ds, ag, today, start) {
+  const o = ag[+ds.slice(8, 10)];
+  if (o && o.exp > 0) return 'amt';
+  if (S.free[ds]) return 'free';
+  if (ds < today && ds.slice(0, 7) >= start) return 'miss';
+  return 'plain';
 }
 
-async function load() {
-  try {
-    const j = await api('https://sheets.googleapis.com/v4/spreadsheets/' + sheetId + '/values/' + encodeURIComponent('거래!A2:L'));
-    const rows = (j.values || []).slice(-10).reverse();
-    const t = $('list'); t.innerHTML = '';
-    rows.forEach(r => {
-      const tr = document.createElement('tr');
-      [r[0], r[2], r[6]].forEach(v => { const td = document.createElement('td'); td.textContent = v || ''; tr.appendChild(td); });
-      const a = document.createElement('td'); a.className = 'n'; a.textContent = Number(r[3] || 0).toLocaleString('ko-KR'); tr.appendChild(a);
-      t.appendChild(tr);
-    });
-    $('listCard').hidden = false;
-    if (!rows.length) t.innerHTML = '<tr><td>아직 거래가 없어요</td></tr>';
-  } catch (e) { say('불러오기 실패: ' + e.message, true); }
+// ---------- 화면 ----------
+const ICON = {
+  home: '<path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/>',
+  add: '<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
+  stats: '<path d="M5 20V10M12 20V4M19 20v-7"/>',
+  set: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/>'
+};
+const svg = (p, w = 22) => '<svg aria-hidden="true" width="' + w + '" height="' + w + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + p + '</svg>';
+function navHtml() {
+  const it = [['home', '홈', ICON.home], ['input', '입력', ICON.add], ['stats', '통계', ICON.stats], ['settings', '설정', ICON.set]];
+  return '<nav>' + it.map(x => '<button data-act="nav" data-v="' + x[0] + '" class="' + (S.view === x[0] ? 'on' : '') + '">' + svg(x[2]) + x[1] + '</button>').join('') + '</nav>';
+}
+function welcomeHtml() {
+  const re = S.wvar === 'reconnect';
+  const dt = new Date(); const dline = dt.getFullYear() + '년 ' + (dt.getMonth() + 1) + '월 ' + dt.getDate() + '일 ' + DOW[dt.getDay()] + '요일';
+  const coin = (x, y, r) => '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="#F2B84B" stroke="#B87400" stroke-width="2"/><circle cx="' + x + '" cy="' + y + '" r="' + (r - 4.5) + '" fill="none" stroke="#B87400" stroke-width="1.5"/>';
+  const bill = (x, y, rot) => '<g transform="translate(' + x + ' ' + y + ') rotate(' + rot + ')"><rect x="-19" y="-10" width="38" height="20" rx="3" fill="#3F9A89" stroke="#0A4A40" stroke-width="2"/><circle r="5" fill="none" stroke="#0A4A40" stroke-width="1.5"/></g>';
+  return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:0 24px">' +
+    '<div style="margin-top:max(48px,8vh);font-size:13px;color:#5B6661">' + dline + '</div>' +
+    '<div style="position:relative;width:240px;height:240px;margin-top:40px;display:flex;align-items:center;justify-content:center">' +
+    '<div style="position:absolute;inset:0;border-radius:50%;background:#E3F1EE"></div><div style="position:absolute;inset:20px;border-radius:50%;background:#C9E3DD"></div>' +
+    '<svg aria-hidden="true" width="200" height="200" viewBox="0 0 200 200" style="position:relative"><defs><clipPath id="c"><circle cx="100" cy="100" r="100"/></clipPath></defs><g clip-path="url(#c)">' +
+    '<g stroke="#0E6B5B" stroke-width="1.5" stroke-linecap="round" opacity="0.35"><line x1="52" y1="6" x2="52" y2="20"/><line x1="100" y1="2" x2="100" y2="14"/><line x1="148" y1="10" x2="148" y2="24"/><line x1="76" y1="44" x2="76" y2="54"/><line x1="128" y1="52" x2="128" y2="62"/></g>' +
+    coin(52, 38, 11) + bill(100, 36, -14) + coin(148, 48, 11) + bill(72, 84, 16) + coin(128, 92, 11) + coin(100, 128, 10) +
+    '<ellipse cx="100" cy="176" rx="30" ry="7" fill="#F2B84B" stroke="#B87400" stroke-width="2"/><rect x="70" y="166" width="60" height="10" fill="#F2B84B"/><ellipse cx="100" cy="166" rx="30" ry="7" fill="#F8CE7A" stroke="#B87400" stroke-width="2"/><rect x="70" y="156" width="60" height="10" fill="#F2B84B"/><ellipse cx="100" cy="156" rx="30" ry="7" fill="#F8CE7A" stroke="#B87400" stroke-width="2"/></g></svg></div>' +
+    '<h1 style="margin:32px 0 0;font-size:40px;color:#0A4A40;letter-spacing:-0.01em">차곡차곡</h1>' +
+    '<div style="margin-top:6px;font-size:14px;color:#5B6661">천천히, 한 푼씩 쌓아 가요</div>' +
+    '<div style="flex:1"></div>' +
+    '<div style="width:100%;padding-bottom:max(28px,env(safe-area-inset-bottom))">' +
+    (S.wmsg ? '<div class="err" style="font-size:13px;margin-bottom:10px;text-align:center">' + esc(S.wmsg) + '</div>' : '') +
+    (re && !S.wmsg ? '<div class="hint" style="margin-bottom:10px;text-align:center">연결이 풀렸어요. 한 번만 눌러 주세요</div>' : '') +
+    (!re && !S.sheetId && !S.wmsg ? '<div class="hint" style="margin-bottom:10px;text-align:center">처음이면 구글 로그인 창이 떠요</div>' : '') +
+    '<button class="btn" data-act="connect" style="width:100%;height:56px;border-radius:16px;font-size:16px"' + (S.busy ? ' disabled' : '') + '>' + (S.busy ? '연결하는 중…' : re ? '구글로 계속하기' : '심호흡하고 입장하기') + '</button></div></div>';
+}
+function homeHtml() {
+  const y = S.y, m = S.m, today = todayStr(), start = startMonth(), ag = monthAgg(y, m);
+  const first = new Date(y, m - 1, 1).getDay(), days = new Date(y, m, 0).getDate();
+  let cells = '', free = 0, miss = 0;
+  for (let i = 0; i < first; i++) cells += '<div style="height:58px"></div>';
+  for (let d = 1; d <= days; d++) {
+    const ds = dstr(y, m, d), st = dayState(ds, ag, today, start), o = ag[d] || {}, isT = ds === today, isS = ds === S.sel;
+    if (st === 'free') free++; if (st === 'miss') miss++;
+    let cls = 'cell', txt = '';
+    if (st === 'amt') { cls += ' amt'; txt = short(o.exp); }
+    else if (st === 'free') { cls += ' free'; txt = '무지출'; }
+    else if (st === 'miss') { cls += ' miss'; txt = '미입력'; }
+    else if (isT) txt = '오늘';
+    else cls += ' fut';
+    if (isT) cls += ' tod'; if (isS) cls += ' sel';
+    cells += '<button class="' + cls + '" data-act="pick" data-d="' + ds + '" aria-label="' + m + '월 ' + d + '일"><span class="d">' + d + '</span>' + (txt ? '<span class="t">' + txt + '</span>' : '') + (o.inc ? '<span class="inc">+' + short(o.inc) + '</span>' : '') + '</button>';
+  }
+  const sel = S.sel, sd = sel.split('-').map(Number), sIsT = sel === today;
+  const list = S.tx.filter(t => t.date === sel && !t.pending);
+  const hasExp = list.some(t => t.kind === '지출'), marked = !!S.free[sel];
+  const sumExp = list.filter(t => t.kind === '지출').reduce((a, t) => a + t.amt, 0);
+  const rows = list.map(t => '<div class="row" style="min-height:44px;border-top:1px solid #EEF0EC">' +
+    '<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(t.memo || '(내용 없음)') + '</div>' +
+    '<div class="hint">' + [t.cat && (t.cat + (t.sub ? '›' + t.sub : '')), t.pay].filter(Boolean).map(esc).join(' · ') + '</div></div>' +
+    (t.kind !== '지출' ? '<span class="tag ' + (t.kind === '수입' ? 'inc' : 'sav') + '">' + t.kind + '</span>' : '') +
+    '<div style="font-size:14px;font-weight:700;min-width:64px;text-align:right">' + fmt(t.amt) + '</div>' +
+    '<button class="del' + (S.confirm === 'del' + t.row ? ' sure' : '') + '" data-act="del" data-row="' + t.row + '">' + (S.confirm === 'del' + t.row ? '한 번 더' : '삭제') + '</button></div>').join('');
+  const pend = S.tx.filter(t => t.pending).length;
+  return '<div class="scroll">' +
+    '<div style="padding:16px 16px 0;font-size:12px;font-weight:500;letter-spacing:0.02em;color:#5B6661">차곡차곡</div>' +
+    '<div class="row" style="justify-content:space-between;padding:0 12px 4px 8px"><div class="row" style="gap:0">' +
+    '<button data-act="mon" data-n="-1" aria-label="이전 달" style="width:44px;height:44px;border:0;background:none;color:#17201D;display:flex;align-items:center;justify-content:center">' + svg('<path d="M15 6l-6 6 6 6"/>', 20) + '</button>' +
+    '<h1>' + y + '년 ' + m + '월</h1>' +
+    '<button data-act="mon" data-n="1" aria-label="다음 달" style="width:44px;height:44px;border:0;background:none;color:#17201D;display:flex;align-items:center;justify-content:center">' + svg('<path d="M9 6l6 6-6 6"/>', 20) + '</button></div>' +
+    '<button data-act="today" style="height:44px;padding:0 16px;border:1px solid #D5D9D3;border-radius:22px;background:#fff;font-size:13px;font-weight:500;color:#17201D">오늘</button></div>' +
+    '<div style="margin:4px 16px 0;background:#fff;border:1px solid #E1E4DF;border-radius:16px;padding:10px 8px 8px">' +
+    '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;padding:0 0 8px;margin-bottom:6px;border-bottom:1px solid #EEF0EC;text-align:center;font-size:12px;font-weight:500">' +
+    DOW.map((w, i) => '<span style="color:' + (i === 0 ? '#B3261E' : i === 6 ? '#2F5DA8' : '#5B6661') + '">' + w + '</span>').join('') + '</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px">' + cells + '</div>' +
+    '<div class="row" style="margin-top:8px;padding:8px 4px 0;border-top:1px solid #EEF0EC">' +
+    '<span class="chip" style="background:#E3F1EE;color:#0E6B5B">무지출 ' + free + '일</span>' +
+    '<span class="chip" style="background:#FFF3DC;color:#9A5B00">미입력 ' + miss + '일</span><span style="flex:1"></span>' +
+    '<button data-act="close" style="height:44px;padding:0 14px;border:1px solid #0E6B5B;border-radius:12px;background:' + (S.confirm === 'close' ? '#0E6B5B' : '#fff') + ';color:' + (S.confirm === 'close' ? '#fff' : '#0E6B5B') + ';font-size:13px;font-weight:700">' + (S.confirm === 'close' ? miss + '일 무지출로?' : '이 달 마감') + '</button></div></div>' +
+    '<div style="margin:10px 16px 0;background:#fff;border-radius:14px;padding:14px 16px">' +
+    '<div class="row" style="justify-content:space-between"><div style="font-size:15px;font-weight:700">' + sd[1] + '월 ' + sd[2] + '일 ' + DOW[dowOf(sel)] + '요일</div>' + (sIsT ? '<span style="font-size:12px;font-weight:700;color:#0E6B5B">오늘</span>' : '') + '</div>' +
+    (list.length ? '<div class="hint" style="margin:2px 0 6px">지출 합계 ' + fmt(sumExp) + '원</div>' + rows : '<div style="font-size:13px;color:#5B6661;margin-top:2px">' + (marked ? '무지출로 표시돼 있어요' : '아직 기록이 없어요') + '</div>') +
+    '<div class="row" style="margin-top:12px"><button class="btn sm" data-act="add">내역 추가</button>' +
+    '<button class="btn sm o" data-act="free"' + (hasExp ? ' disabled' : '') + '>' + (marked ? '무지출 해제' : sIsT ? '오늘 무지출' : '이 날 무지출') + '</button></div>' +
+    '<div class="hint" style="margin-top:8px">무지출로 표시해도 그날 지출을 저장하면 자동으로 해제돼요</div>' +
+    (pend ? '<div style="margin-top:10px;min-height:44px;padding:0 14px;border-radius:12px;background:#FFF3DC;color:#9A5B00;display:flex;align-items:center;font-size:13px;font-weight:700">정산 대기 ' + pend + '건 · 목록은 아직 준비 중이에요</div>' : '') +
+    '</div></div>' + navHtml();
+}
+function inputHtml() {
+  const f = S.form, ex = distinct();
+  return '<div class="scroll"><div class="title"><h1><span aria-hidden="true">✏️</span> 오늘은 뭘 기록할까?</h1></div>' +
+    '<div class="card" style="margin-top:0"><div class="seg" role="tablist">' + KINDS.map(k => '<button data-act="kind" data-k="' + k + '" class="' + (f.kind === k ? 'on' : '') + '">' + k + '</button>').join('') + '</div>' +
+    '<label class="l" for="f-date">날짜</label><div class="row"><input id="f-date" class="in" type="date" value="' + f.date + '" data-f="date" style="flex:1;min-width:0">' +
+    '<button data-act="dset" data-n="0" style="width:52px;height:44px;border:0;border-radius:10px;background:#E3F1EE;color:#0E6B5B;font-size:13px;font-weight:700">오늘</button>' +
+    '<button data-act="dset" data-n="-1" style="width:52px;height:44px;border:1px solid #D5D9D3;border-radius:10px;background:#fff;color:#17201D;font-size:13px">어제</button></div>' +
+    '<label class="l" for="f-amt">금액 (원)</label><input id="f-amt" class="in amt" type="text" inputmode="numeric" placeholder="0" value="' + esc(f.amt) + '" data-f="amt">' +
+    '<label class="l" for="f-memo">내용</label><input id="f-memo" class="in" type="text" value="' + esc(f.memo) + '" data-f="memo" placeholder="예: 점심 김밥">' +
+    '<label class="l" for="f-pay">결제수단</label><input id="f-pay" class="in" type="text" list="dl-pay" value="' + esc(f.pay) + '" data-f="pay" placeholder="예: 국민카드">' +
+    '<div class="row" style="align-items:flex-end"><div style="flex:1;min-width:0"><label class="l" for="f-cat">대분류</label><input id="f-cat" class="in" type="text" list="dl-cat" value="' + esc(f.cat) + '" data-f="cat" placeholder="예: 식비"></div>' +
+    '<div style="flex:1;min-width:0"><label class="l" for="f-sub">소분류</label><input id="f-sub" class="in" type="text" list="dl-sub" value="' + esc(f.sub) + '" data-f="sub" placeholder="예: 외식"></div></div>' +
+    '<label class="l" for="f-note">비고 (선택)</label><input id="f-note" class="in" type="text" value="' + esc(f.note) + '" data-f="note" placeholder="메모">' +
+    '<datalist id="dl-pay">' + ex.pay.map(v => '<option value="' + esc(v) + '">').join('') + '</datalist><datalist id="dl-cat">' + ex.cat.map(v => '<option value="' + esc(v) + '">').join('') + '</datalist><datalist id="dl-sub">' + ex.sub.map(v => '<option value="' + esc(v) + '">').join('') + '</datalist></div>' +
+    '<div class="row" style="margin:12px 16px 0"><button class="btn o" data-act="save" data-cont="1">저장하고 계속</button><button class="btn" data-act="save">저장</button></div></div>' + navHtml();
+}
+function distinct() {
+  const u = k => Array.from(new Set(S.tx.map(t => t[k]).filter(Boolean)));
+  return { pay: u('pay'), cat: u('cat'), sub: u('sub') };
+}
+function statsHtml() {
+  return '<div class="scroll"><div class="title"><h1><span aria-hidden="true">📊</span> 비교 들어간다</h1></div>' +
+    '<div class="card" style="margin-top:0"><div style="font-size:14px;font-weight:700">통계는 다음 단계에서 만들어요</div><div class="hint" style="margin-top:6px">지금은 달력에서 입력하고 확인하는 부분까지 연결했어요.</div></div></div>' + navHtml();
+}
+function settingsHtml() {
+  const url = 'https://docs.google.com/spreadsheets/d/' + S.sheetId;
+  return '<div class="scroll"><div class="title"><h1><span aria-hidden="true">🛠️</span> 사부작 사부작 세팅하기</h1></div>' +
+    '<div class="card" style="margin-top:0"><div class="row" style="justify-content:space-between"><div><div class="hint">연결된 구글 시트</div><div style="font-size:14px;font-weight:500">차곡차곡 · 내 구글 드라이브</div></div>' +
+    '<a href="' + url + '" target="_blank" rel="noopener" style="height:36px;padding:0 14px;border-radius:18px;background:#E3F1EE;color:#0E6B5B;font-size:13px;font-weight:700;display:inline-flex;align-items:center;text-decoration:none">시트 열기</a></div>' +
+    '<div style="border-top:1px solid #EEF0EC;margin-top:10px;padding-top:10px" class="row"><div style="flex:1"><div style="font-size:14px">기록 시작 월</div><div class="hint">이전 달은 숨겨질 뿐 지워지지 않아요</div></div>' +
+    '<input type="month" class="in" style="width:150px" value="' + startMonth() + '" data-act="startm" aria-label="기록 시작 월"></div></div>' +
+    '<div class="card"><label class="row" style="min-height:48px;justify-content:space-between"><span><span style="font-size:14px">열 때 입장 화면 보이기</span><span class="hint" style="display:block">하루 첫 실행에서만 나와요 · 이 기기에만 저장돼요</span></span>' +
+    '<input type="checkbox" class="sw" data-act="weloff"' + (lsGet(K.weloff) === '1' ? '' : ' checked') + '></label></div>' +
+    '<div class="card"><button class="btn sm o" data-act="disconnect" style="width:100%">이 기기에서 연결 해제</button><div class="hint" style="margin-top:8px">시트와 기록은 그대로 남아요. 다시 입장하면 같은 시트에 연결돼요.</div></div></div>' + navHtml();
+}
+function render() {
+  const app = $('app'), v = S.view;
+  const active = document.activeElement && document.activeElement.id;
+  app.innerHTML = v === 'welcome' ? welcomeHtml() : v === 'home' ? homeHtml() : v === 'input' ? inputHtml() : v === 'stats' ? statsHtml() : settingsHtml();
+  if (active && $(active) && /^f-/.test(active)) { const el = $(active); el.focus(); try { const l = el.value.length; el.setSelectionRange(l, l); } catch (e) {} }
 }
 
-function boot() {
-  if (CLIENT_ID.indexOf('PASTE_CLIENT_ID_HERE') === 0) $('cfgWarn').hidden = false;
-  $('btnConnect').onclick = () => { if (!tokenClient) initToken(); connect(); };
-  $('btnSave').onclick = save;
-  $('btnLoad').onclick = load;
+// ---------- 동작 ----------
+function go(v) { S.view = v; S.confirm = ''; if (v === 'input' && !S.form) S.form = newForm(S.sel); render(); }
+async function saveTx(cont) {
+  const f = S.form, amt = Number(String(f.amt).replace(/[^0-9]/g, ''));
+  if (!amt) return toast('금액을 넣어 주세요', true);
+  if (!f.date) return toast('날짜를 골라 주세요', true);
+  const date = f.date, time = date === todayStr() ? (pad(new Date().getHours()) + ':' + pad(new Date().getMinutes())) : '';
+  const ok = await run(async () => {
+    await appendRows('거래', [[date, time, f.kind, amt, f.cat.trim(), f.sub.trim(), f.memo.trim(), f.pay.trim(), f.note.trim(), '', '', '']]);
+    if (f.kind === '지출' && S.free[date]) { await deleteRows('무지출일', [S.free[date]]); }
+    await reload();
+  }, '저장했어요');
+  if (!ok) { render(); return; }
+  S.y = +date.slice(0, 4); S.m = +date.slice(5, 7); S.sel = date;
+  if (cont) { S.form = Object.assign(newForm(date), { kind: f.kind, pay: f.pay }); render(); const a = $('f-amt'); if (a) a.focus(); }
+  else { S.form = null; go('home'); }
 }
-window.addEventListener('load', () => {
-  const s = document.createElement('script');
-  s.src = 'https://accounts.google.com/gsi/client';
-  s.onload = boot;
-  s.onerror = () => { boot(); say('구글 로그인 스크립트를 불러오지 못했어요. 인터넷을 확인해 주세요.', true); };
-  document.head.appendChild(s);
+const actions = {
+  connect: () => connect(),
+  nav: el => go(el.dataset.v),
+  mon: el => { let m = S.m + Number(el.dataset.n), y = S.y; if (m < 1) { m = 12; y--; } if (m > 12) { m = 1; y++; } S.y = y; S.m = m; S.confirm = ''; render(); },
+  today: () => { const t = todayStr(); S.y = +t.slice(0, 4); S.m = +t.slice(5, 7); S.sel = t; render(); },
+  pick: el => { S.sel = el.dataset.d; S.confirm = ''; render(); },
+  add: () => { S.form = newForm(S.sel); go('input'); },
+  free: async () => {
+    const d = S.sel;
+    await run(async () => { if (S.free[d]) await deleteRows('무지출일', [S.free[d]]); else await appendRows('무지출일', [[d]]); await reload(); });
+    render();
+  },
+  close: async () => {
+    const today = todayStr(), start = startMonth(), ag = monthAgg(S.y, S.m), days = new Date(S.y, S.m, 0).getDate(), miss = [];
+    for (let d = 1; d <= days; d++) { const ds = dstr(S.y, S.m, d); if (dayState(ds, ag, today, start) === 'miss') miss.push([ds]); }
+    if (!miss.length) { toast('미입력 날짜가 없어요'); return; }
+    if (S.confirm !== 'close') { S.confirm = 'close'; render(); setTimeout(() => { if (S.confirm === 'close') { S.confirm = ''; render(); } }, 3500); return; }
+    S.confirm = '';
+    await run(async () => { await appendRows('무지출일', miss); await reload(); }, miss.length + '일을 무지출로 표시했어요');
+    render();
+  },
+  del: async el => {
+    const row = Number(el.dataset.row), key = 'del' + row;
+    if (S.confirm !== key) { S.confirm = key; render(); setTimeout(() => { if (S.confirm === key) { S.confirm = ''; render(); } }, 3000); return; }
+    S.confirm = '';
+    await run(async () => { await deleteRows('거래', [row]); await reload(); }, '삭제했어요');
+    render();
+  },
+  kind: el => { S.form.kind = el.dataset.k; render(); },
+  dset: el => { S.form.date = addDays(todayStr(), Number(el.dataset.n)); render(); },
+  save: el => saveTx(!!el.dataset.cont),
+  disconnect: () => { [K.id, K.tok, K.wel].forEach(lsDel); token = null; S.sheetId = null; S.tx = []; S.free = {}; S.opts = {}; S.form = null; S.view = 'welcome'; S.wvar = 'normal'; S.wmsg = ''; render(); },
+  weloff: el => { if (el.checked) lsDel(K.weloff); else lsSet(K.weloff, '1'); toast(el.checked ? '입장 화면을 보여 드릴게요' : '입장 화면을 건너뛸게요'); }
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el || el.tagName === 'INPUT') return;
+  const fn = actions[el.dataset.act]; if (fn && !el.disabled) fn(el);
 });
+document.addEventListener('change', async e => {
+  const el = e.target;
+  if (el.dataset.act === 'weloff') actions.weloff(el);
+  if (el.dataset.act === 'startm' && el.value) { await run(() => setOption('기록 시작 월', el.value), '시작 월을 바꿨어요'); render(); }
+  if (el.dataset.f === 'date') S.form.date = el.value;
+});
+document.addEventListener('input', e => {
+  const el = e.target, f = el.dataset && el.dataset.f; if (!f || !S.form) return;
+  if (f === 'amt') { const n = el.value.replace(/[^0-9]/g, ''); S.form.amt = n ? fmt(Number(n)) : ''; el.value = S.form.amt; }
+  else S.form[f] = el.value;
+});
+
+// ---------- 시작 ----------
+(function boot() {
+  const today = todayStr(), shownToday = lsGet(K.wel) === today, wantWelcome = lsGet(K.weloff) !== '1';
+  if (S.sheetId && tokenValid() && (shownToday || !wantWelcome)) { S.view = 'welcome'; S.wvar = 'normal'; render(); enterSilently(); return; }
+  S.view = 'welcome'; S.wvar = (S.sheetId && (shownToday || !wantWelcome)) ? 'reconnect' : 'normal';
+  render(); loadGis().catch(e => { S.wmsg = e.message; render(); });
+})();
 </script>
 </body>
 </html>
