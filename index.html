@@ -34,6 +34,10 @@ label.l{display:block;font-size:12px;color:#5B6661;margin:10px 0 4px}
 .dtf input{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;border:0;padding:0;-webkit-appearance:none;appearance:none}
 .in{width:100%;height:40px;border:1px solid #D5D9D3;border-radius:10px;padding:0 12px;font-size:14.5px;font-weight:500;color:#17201D;background:#fff}
 .in.amt{height:48px;border:2px solid var(--ac);text-align:right;font-size:22px;font-weight:700;padding:0 14px}
+.grip{width:30px;height:36px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:#9AA39E;font-size:20px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.chp{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.dragging{background:#fff;box-shadow:0 6px 18px rgba(0,0,0,.2);border-radius:12px;position:relative;z-index:2}
+.chp.dragging{background:var(--acbg);border-radius:17px}
 .utabs{display:flex;border-bottom:1px solid #E1E4DF;margin:-4px 0 12px}
 .utabs button{flex:1;height:42px;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;background:none;color:#7A847F;font-size:14.5px;font-weight:500}
 .utabs button.on{color:var(--ac);font-weight:700;border-bottom-color:var(--ac)}
@@ -85,7 +89,7 @@ label.l{display:block;font-size:12px;color:#5B6661;margin:10px 0 4px}
 .sheet{animation:up .18s ease-out}
 @media (prefers-reduced-motion:reduce){.sheet{animation:none}}
 .modal{position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;z-index:5}
-.sheet{background:#fff;width:100%;border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom))}
+.sheet{background:#fff;width:100%;max-height:88%;overflow-y:auto;border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom))}
 .hint{font-size:11.5px;color:#5B6661}
 a{color:var(--ac)}
 </style>
@@ -725,6 +729,11 @@ function applyTheme() {
 }
 const SEGS = ['변동비', '고정비', '수입', '저축'];
 function inSeg(c, seg) { return seg === '수입' ? c.kind === '수입' : seg === '저축' ? c.kind === '저축' : c.kind === '지출' && (seg === '고정비' ? c.fv === '고정' : c.fv !== '고정'); }
+function delNote(M) {
+  const n = M.type === 'pay' ? S.tx.filter(t => t.pay === M.orig).length : M.type === 'cat' ? S.tx.filter(t => t.cat === M.orig).length : S.tx.filter(t => t.cat === M.parent && t.sub === M.orig).length;
+  const k = M.type === 'cat' ? S.subs.filter(x => x.parent === M.orig).length : 0;
+  return '목록에서만 없어져요. 이 이름으로 적힌 지난 기록 ' + n + '건은 그대로 남아요.' + (k ? ' 소분류 ' + k + '개도 함께 지워져요.' : '');
+}
 function modalHtml() {
   const M = S.modal; if (!M) return '';
   const T = { pay: '결제수단', cat: '대분류', sub: '소분류' }[M.type];
@@ -733,27 +742,29 @@ function modalHtml() {
     '<label class="l" for="m-name">이름</label><input id="m-name" class="in" type="text" value="' + esc(M.name) + '" autocomplete="off">' +
     (M.row ? '<div class="hint" style="margin-top:8px">이름을 바꾸면 지난 기록의 이름도 같이 바뀌어요. 지우는 대신 숨기면 기록은 그대로 남아요.</div>' : '') +
     '<div class="row" style="margin-top:16px">' + (M.row ? '<button class="btn o" data-act="mhide" style="flex:1">' + (M.hidden ? '다시 보이기' : '숨기기') + '</button>' : '<button class="btn o" data-act="mclose" style="flex:1">취소</button>') +
-    '<button class="btn" data-act="msave" style="flex:1">저장</button></div></div></div>';
+    '<button class="btn" data-act="msave" style="flex:1">저장</button></div>' +
+    (M.row ? '<button class="del' + (M.cdel ? ' sure' : '') + '" data-act="mdel" style="width:100%;margin-top:10px">' + (M.cdel ? '한 번 더 누르면 완전히 삭제돼요' : '완전히 삭제') + '</button>' +
+      (M.cdel ? '<div class="hint" style="margin-top:8px">' + delNote(M) + '</div>' : '') : '') + '</div></div>';
 }
 function settingsHtml() {
   const url = 'https://docs.google.com/spreadsheets/d/' + S.sheetId;
-  const chips = (arr, act, extra) => arr.map(x => '<button class="chp' + (x.hidden ? ' dim' : '') + '" data-act="' + act + '" data-row="' + x.row + '">' + esc(x.name) + '</button>').join('');
+  const chips = (arr, act, extra) => arr.map(x => '<button class="chp' + (x.hidden ? ' dim' : '') + '" data-act="' + act + '" data-row="' + x.row + '" data-item="' + x.row + '">' + esc(x.name) + '</button>').join('');
   const cats = S.cats.filter(c => inSeg(c, S.seg));
-  const catCards = cats.map(c => '<div style="border-top:1px solid #EEF0EC;padding:10px 0 4px">' +
-    '<div class="row" style="justify-content:space-between;margin-bottom:8px"><button data-act="ecat" data-row="' + c.row + '" style="border:0;background:none;padding:0;font-size:14px;font-weight:700;color:' + (c.hidden ? '#9AA39E' : '#17201D') + ';text-decoration:' + (c.hidden ? 'line-through' : 'none') + '">' + esc(c.name) + ' ›</button>' +
+  const catCards = cats.map(c => '<div data-item="' + c.row + '" style="border-top:1px solid #EEF0EC;padding:10px 0 4px">' +
+    '<div class="row" style="justify-content:space-between;margin-bottom:8px"><span class="row" style="gap:2px;min-width:0"><span class="grip" data-grip="1" role="img" aria-label="끌어서 순서 바꾸기">⠿</span><button data-act="ecat" data-row="' + c.row + '" style="border:0;background:none;padding:0;font-size:14px;font-weight:700;color:' + (c.hidden ? '#9AA39E' : '#17201D') + ';text-decoration:' + (c.hidden ? 'line-through' : 'none') + '">' + esc(c.name) + ' ›</button></span>' +
     (c.kind === '지출' ? '<select class="in" style="width:96px;height:36px;font-size:13px;padding:0 8px" data-act="fv" data-row="' + c.row + '" aria-label="고정비 변동비"><option' + (c.fv !== '고정' ? ' selected' : '') + '>변동비</option><option' + (c.fv === '고정' ? ' selected' : '') + '>고정비</option></select>' : '') + '</div>' +
-    '<div class="row" style="flex-wrap:wrap;gap:6px">' + chips(S.subs.filter(x => x.parent === c.name), 'esub') + '<button class="chp add" data-act="nsub" data-p="' + esc(c.name) + '">+</button></div></div>').join('');
+    '<div class="row" data-reorder="sub" style="flex-wrap:wrap;gap:6px">' + chips(S.subs.filter(x => x.parent === c.name), 'esub') + '<button class="chp add" data-act="nsub" data-p="' + esc(c.name) + '">+</button></div></div>').join('');
   return '<div class="scroll"><div class="title"><h1><span aria-hidden="true">🛠️</span> 사부작 사부작 세팅하기</h1></div>' +
     '<div class="card" style="margin-top:0"><div class="row" style="justify-content:space-between"><div><div class="hint">연결된 구글 시트</div><div style="font-size:14px;font-weight:500">차곡차곡 · 내 구글 드라이브</div></div>' +
     '<a href="' + url + '" target="_blank" rel="noopener" style="height:36px;padding:0 14px;border-radius:18px;background:var(--acbg);color:var(--ac);font-size:13px;font-weight:700;display:inline-flex;align-items:center;text-decoration:none">시트 열기</a></div>' +
     '<div style="border-top:1px solid #EEF0EC;margin-top:10px;padding-top:10px" class="row"><div style="flex:1"><div style="font-size:14px">기록 시작 월</div><div class="hint">이전 달은 숨겨질 뿐 지워지지 않아요</div></div>' +
     '<input type="month" class="in" style="width:150px" value="' + startMonth() + '" data-act="startm" aria-label="기록 시작 월"></div></div>' +
-    '<div class="card"><div class="row" style="justify-content:space-between;margin-bottom:8px"><div class="sec">결제수단</div><div class="hint">눌러서 이름 고치기·숨기기</div></div>' +
-    '<div class="row" style="flex-wrap:wrap;gap:6px">' + chips(S.pays, 'epay') + '<button class="chp add" data-act="npay">+ 추가</button></div>' +
+    '<div class="card"><div class="row" style="justify-content:space-between;margin-bottom:8px"><div class="sec">결제수단</div><div class="hint">눌러서 고치기 · 꾹 눌러 끌면 순서 변경</div></div>' +
+    '<div class="row" data-reorder="pay" style="flex-wrap:wrap;gap:6px">' + chips(S.pays, 'epay') + '<button class="chp add" data-act="npay">+ 추가</button></div>' +
     (S.pays.length ? '' : '<div class="hint" style="margin-top:8px">예: 현금, 국민카드, 카카오뱅크</div>') + '</div>' +
     '<div class="card"><div class="row" style="justify-content:space-between;margin-bottom:8px"><div class="sec">분류</div><div class="hint">고정비·변동비는 대분류 단위</div></div>' +
     '<div class="seg">' + SEGS.map(g => '<button data-act="seg" data-g="' + g + '" class="' + (S.seg === g ? 'on' : '') + '">' + g + '</button>').join('') + '</div>' +
-    '<div style="margin-top:8px">' + (cats.length ? catCards : '<div class="hint" style="padding:10px 0">' + (S.cats.length ? '이 보기에는 아직 대분류가 없어요' : '아직 분류가 없어요') + '</div>') + '</div>' +
+    '<div style="margin-top:8px">' + (cats.length ? '<div data-reorder="cat">' + catCards + '</div><div class="hint" style="margin-top:8px">⠿ 을 잡고 끌면 대분류 순서가, 소분류는 꾹 눌러 끌면 순서가 바뀌어요</div>' : '<div class="hint" style="padding:10px 0">' + (S.cats.length ? '이 보기에는 아직 대분류가 없어요' : '아직 분류가 없어요') + '</div>') + '</div>' +
     '<button class="chp add" data-act="ncat" style="width:100%;height:40px;margin-top:8px">+ 대분류 추가</button>' +
     (S.cats.length ? '' : '<button class="btn sm o" data-act="seed" style="width:100%;margin-top:8px">기본 분류 한꺼번에 넣기</button><div class="hint" style="margin-top:6px">식비·교통·주거·급여·저축(적금·예금·청약) 등 흔한 분류를 넣어요. 나중에 고치거나 숨길 수 있어요</div>') + '</div>' +
     '<div class="card"><div class="row" style="justify-content:space-between"><div class="sec">테마 색</div><div class="row" style="gap:12px">' +
@@ -853,6 +864,13 @@ const actions = {
   esub: el => { const x = S.subs.find(p => p.row === Number(el.dataset.row)); openModal({ type: 'sub', row: x.row, name: x.name, orig: x.name, parent: x.parent, hidden: x.hidden }); },
   mclose: () => { S.modal = null; render(); },
   msave: () => saveModal(),
+  mdel: async () => {
+    const M = S.modal; if (!M || !M.row) return;
+    if (!M.cdel) { M.cdel = true; render(); return; }
+    const rows = [M.row]; if (M.type === 'cat') S.subs.filter(x => x.parent === M.orig).forEach(x => rows.push(x.row));
+    if (await run(async () => { await deleteRows('설정', rows); await reload(); }, '삭제했어요')) S.modal = null;
+    render();
+  },
   mhide: () => { S.modal.hidden = !S.modal.hidden; saveModal(); },
   connect: () => connect(),
   nav: el => go(el.dataset.v),
@@ -887,7 +905,51 @@ const actions = {
   disconnect: () => { [K.id, K.tok, K.wel].forEach(lsDel); token = null; S.sheetId = null; S.tx = []; S.free = {}; S.opts = {}; S.form = null; S.view = 'welcome'; S.wvar = 'normal'; S.wmsg = ''; render(); },
   weloff: el => { if (el.checked) lsDel(K.weloff); else lsSet(K.weloff, '1'); toast(el.checked ? '입장 화면을 보여 드릴게요' : '입장 화면을 건너뛸게요'); }
 };
+// ---------- 끌어서 순서 바꾸기 ----------
+let DR = null, noClickUntil = 0;
+function dragOver(e) {
+  const t = document.elementFromPoint(e.clientX, e.clientY), cont = DR.cont;
+  const o = t && t.closest('[data-item]');
+  if (o && o !== DR.item && o.parentElement === cont) {
+    const r = o.getBoundingClientRect(), vertical = DR.type === 'cat';
+    const after = vertical ? e.clientY > r.top + r.height / 2 : e.clientX > r.left + r.width / 2;
+    cont.insertBefore(DR.item, after ? o.nextSibling : o);
+  }
+  const sc = document.querySelector('.scroll');
+  if (sc) { if (e.clientY < 90) sc.scrollTop -= 12; else if (e.clientY > innerHeight - 130) sc.scrollTop += 12; }
+}
+function startDrag() { if (!DR) return; DR.active = true; DR.item.classList.add('dragging'); try { DR.item.setPointerCapture(DR.id); } catch (e) {} if (navigator.vibrate) try { navigator.vibrate(8); } catch (e) {} }
+document.addEventListener('pointerdown', e => {
+  if (!S.view || S.view !== 'settings' || S.modal) return;
+  const grip = e.target.closest('[data-grip]'), chip = !grip && e.target.closest('.chp[data-item]');
+  const item = grip ? grip.closest('[data-item]') : chip; if (!item || !item.parentElement.dataset.reorder) return;
+  DR = { item, cont: item.parentElement, type: item.parentElement.dataset.reorder, x: e.clientX, y: e.clientY, id: e.pointerId, active: false, timer: null };
+  if (grip) startDrag(); else DR.timer = setTimeout(startDrag, 380);
+});
+document.addEventListener('pointermove', e => {
+  if (!DR) return;
+  if (!DR.active) { if (Math.abs(e.clientX - DR.x) + Math.abs(e.clientY - DR.y) > 10) { clearTimeout(DR.timer); DR = null; } return; }
+  dragOver(e);
+});
+async function endDrag() {
+  if (!DR) return; const d = DR; DR = null; clearTimeout(d.timer);
+  if (!d.active) return;
+  d.item.classList.remove('dragging'); noClickUntil = Date.now() + 400;
+  const order = Array.from(d.cont.children).filter(c => c.dataset.item).map(c => Number(c.dataset.item));
+  const slots = order.slice().sort((a, b) => a - b);
+  if (order.every((r, i) => r === slots[i])) return;
+  const src = d.type === 'cat' ? S.cats : d.type === 'pay' ? S.pays : S.subs;
+  const rowFor = x => d.type === 'cat' ? catRow(x.name, x.kind, x.fv, x.hidden) : d.type === 'pay' ? payRow(x.name, x.hidden) : subRow(x.name, x.parent, x.hidden);
+  const data = order.map((r, i) => ({ range: '설정!A' + slots[i] + ':E' + slots[i], values: [rowFor(src.find(x => x.row === r))] }));
+  await run(async () => { await patchCells(data); await reload(); }, '순서를 바꿨어요');
+  render();
+}
+document.addEventListener('pointerup', endDrag);
+document.addEventListener('pointercancel', endDrag);
+document.addEventListener('touchmove', e => { if (DR && DR.active) e.preventDefault(); }, { passive: false });
+document.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('.chp[data-item]')) e.preventDefault(); });
 document.addEventListener('click', e => {
+  if (Date.now() < noClickUntil) { e.stopPropagation(); return; }
   const el = e.target.closest('[data-act]'); if (!el || el.tagName === 'INPUT' || el.tagName === 'SELECT') return;
   const fn = actions[el.dataset.act]; if (fn && !el.disabled) fn(el);
 });
