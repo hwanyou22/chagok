@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>차곡차곡 · 연결 시험</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,'Noto Sans KR',sans-serif;background:#F4F5F2;color:#17201D}
+main{max-width:430px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:22px;margin:0 0 4px;color:#0A4A40}
+.sub{font-size:13px;color:#5B6661;margin-bottom:16px}
+.card{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px}
+button{font:inherit;height:48px;border-radius:12px;border:0;background:#0E6B5B;color:#fff;font-weight:700;font-size:15px;padding:0 16px;width:100%}
+button.sec{background:#E3F1EE;color:#0E6B5B}
+button:disabled{opacity:.5}
+label{display:block;font-size:12px;color:#5B6661;margin:10px 0 4px}
+input,select{font:inherit;width:100%;height:44px;border:1px solid #D5D9D3;border-radius:10px;padding:0 12px;background:#fff}
+.row{display:flex;gap:8px}
+.row>*{flex:1}
+#status{font-size:13px;line-height:1.5;white-space:pre-wrap}
+.warn{background:#FFF3DC;color:#9A5B00;border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:12px}
+.err{color:#C62828}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{padding:6px 4px;border-bottom:1px solid #EEF0EC;text-align:left}
+td.n{text-align:right}
+a{color:#0E6B5B}
+</style>
+</head>
+<body>
+<main>
+  <h1>차곡차곡</h1>
+  <div class="sub">구글 시트 연결 시험 화면 (실제 앱 화면이 아니에요)</div>
+
+  <div id="cfgWarn" class="warn" hidden>아래 코드의 CLIENT_ID에 구글 클라이언트 ID를 넣어야 로그인돼요.</div>
+
+  <div class="card">
+    <button id="btnConnect">구글로 계속하기</button>
+    <div id="status" style="margin-top:10px">아직 연결 안 됨</div>
+  </div>
+
+  <div class="card" id="saveCard" hidden>
+    <div class="row">
+      <div><label for="fDate">날짜</label><input id="fDate" type="date"></div>
+      <div><label for="fKind">구분</label>
+        <select id="fKind"><option>지출</option><option>수입</option><option>저축</option></select></div>
+    </div>
+    <label for="fAmt">금액</label><input id="fAmt" type="number" inputmode="numeric" placeholder="예: 4500">
+    <label for="fMemo">내용</label><input id="fMemo" type="text" placeholder="예: 점심">
+    <div class="row" style="margin-top:12px">
+      <button id="btnSave">거래 저장</button>
+      <button id="btnLoad" class="sec">목록 불러오기</button>
+    </div>
+  </div>
+
+  <div class="card" id="listCard" hidden>
+    <table id="list"></table>
+  </div>
+</main>
+
+<script>
+// ===== 설정: 구글 클라우드 콘솔에서 만든 클라이언트 ID를 여기에 넣어요 =====
+const CLIENT_ID = '1042667484761-6m5sr908f13n6ph13g63mujmkls8jhve.apps.googleusercontent.com';
+// =========================================================================
+const SCOPE = 'https://www.googleapis.com/auth/drive.file';
+const SHEET_NAME = '차곡차곡';
+const TABS = {
+  '거래': ['날짜','시각','구분','금액','대분류','소분류','내용','결제수단','비고','번호','총액','정산대기'],
+  '정산': ['번호','이름','받을 금액','받은 금액','받은 날짜'],
+  '무지출일': ['날짜'],
+  '설정': ['종류','이름','값1','값2','값3'],
+  '기억': ['종류','키','값1','값2']
+};
+const LS = { id: 'chagok.sheetId' };
+
+let token = null, tokenExp = 0, tokenClient = null, sheetId = null, pendingResolve = null, pendingReject = null;
+const $ = id => document.getElementById(id);
+const say = (t, err) => { const s = $('status'); s.textContent = t; s.className = err ? 'err' : ''; };
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+function initToken() {
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPE,
+    callback: r => {
+      if (r && r.access_token) {
+        token = r.access_token;
+        tokenExp = Date.now() + (Number(r.expires_in || 3600) - 60) * 1000;
+        if (pendingResolve) pendingResolve(token);
+      } else if (pendingReject) {
+        pendingReject(new Error((r && r.error) || '로그인 실패'));
+      }
+      pendingResolve = pendingReject = null;
+    },
+    error_callback: e => {
+      if (pendingReject) pendingReject(new Error(e && e.type || '로그인 창이 닫혔어요'));
+      pendingResolve = pendingReject = null;
+    }
+  });
+}
+
+// 처음엔 동의 창, 이후엔 조용히 갱신해요. 버튼을 누른 직후에 불러야 팝업이 막히지 않아요.
+function getToken(forceConsent) {
+  if (!forceConsent && token && Date.now() < tokenExp) return Promise.resolve(token);
+  return new Promise((res, rej) => {
+    pendingResolve = res; pendingReject = rej;
+    tokenClient.requestAccessToken({ prompt: forceConsent ? 'consent' : '' });
+  });
+}
+
+async function api(url, opts = {}, retry = true) {
+  const t = await getToken(false);
+  const r = await fetch(url, Object.assign({}, opts, {
+    headers: Object.assign({ Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }, opts.headers || {})
+  }));
+  if (r.status === 401 && retry) { token = null; return api(url, opts, false); }
+  if (!r.ok) {
+    let m = ''; try { m = (await r.json()).error.message; } catch (e) {}
+    throw new Error(r.status + ' ' + m);
+  }
+  return r.json();
+}
+
+async function findSheet() {
+  const saved = lsGet(LS.id);
+  if (saved) {
+    try { await api('https://sheets.googleapis.com/v4/spreadsheets/' + saved + '?fields=spreadsheetId'); return saved; }
+    catch (e) { /* 지워졌거나 접근 불가면 아래에서 다시 찾아요 */ }
+  }
+  const q = encodeURIComponent("name='" + SHEET_NAME + "' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false");
+  const j = await api('https://www.googleapis.com/drive/v3/files?q=' + q + '&orderBy=createdTime&fields=files(id,name)');
+  return j.files && j.files.length ? j.files[0].id : null;
+}
+
+async function createSheet() {
+  const names = Object.keys(TABS);
+  const j = await api('https://sheets.googleapis.com/v4/spreadsheets', {
+    method: 'POST',
+    body: JSON.stringify({
+      properties: { title: SHEET_NAME, locale: 'ko_KR' },
+      sheets: names.map(n => ({ properties: { title: n, gridProperties: { frozenRowCount: 1 } } }))
+    })
+  });
+  await api('https://sheets.googleapis.com/v4/spreadsheets/' + j.spreadsheetId + '/values:batchUpdate', {
+    method: 'POST',
+    body: JSON.stringify({
+      valueInputOption: 'RAW',
+      data: names.map(n => ({ range: n + '!A1', values: [TABS[n]] }))
+    })
+  });
+  return j.spreadsheetId;
+}
+
+async function connect() {
+  $('btnConnect').disabled = true;
+  try {
+    say('구글 로그인 중…');
+    await getToken(!lsGet(LS.id));
+    say('시트를 찾는 중…');
+    let id = await findSheet(), made = false;
+    if (!id) { say('시트를 만드는 중…'); id = await createSheet(); made = true; }
+    sheetId = id; lsSet(LS.id, id);
+    say((made ? '새 시트를 만들었어요.\n' : '기존 시트에 연결했어요.\n') + '시트 열기: https://docs.google.com/spreadsheets/d/' + id);
+    $('saveCard').hidden = false;
+    $('fDate').value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    $('btnConnect').textContent = '다시 연결하기';
+  } catch (e) {
+    say('연결 실패: ' + e.message, true);
+  } finally { $('btnConnect').disabled = false; }
+}
+
+async function save() {
+  const amt = Number($('fAmt').value);
+  if (!amt) { say('금액을 넣어 주세요', true); return; }
+  $('btnSave').disabled = true;
+  try {
+    const row = [$('fDate').value, '', $('fKind').value, amt, '', '', $('fMemo').value, '', '', '', '', ''];
+    await api('https://sheets.googleapis.com/v4/spreadsheets/' + sheetId + '/values/' + encodeURIComponent('거래!A:L') +
+      ':append?valueInputOption=RAW&insertDataOption=INSERT_ROWS', { method: 'POST', body: JSON.stringify({ values: [row] }) });
+    say('저장했어요.'); $('fAmt').value = ''; $('fMemo').value = '';
+    await load();
+  } catch (e) { say('저장 실패: ' + e.message, true); }
+  finally { $('btnSave').disabled = false; }
+}
+
+async function load() {
+  try {
+    const j = await api('https://sheets.googleapis.com/v4/spreadsheets/' + sheetId + '/values/' + encodeURIComponent('거래!A2:L'));
+    const rows = (j.values || []).slice(-10).reverse();
+    const t = $('list'); t.innerHTML = '';
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      [r[0], r[2], r[6]].forEach(v => { const td = document.createElement('td'); td.textContent = v || ''; tr.appendChild(td); });
+      const a = document.createElement('td'); a.className = 'n'; a.textContent = Number(r[3] || 0).toLocaleString('ko-KR'); tr.appendChild(a);
+      t.appendChild(tr);
+    });
+    $('listCard').hidden = false;
+    if (!rows.length) t.innerHTML = '<tr><td>아직 거래가 없어요</td></tr>';
+  } catch (e) { say('불러오기 실패: ' + e.message, true); }
+}
+
+function boot() {
+  if (CLIENT_ID.indexOf('PASTE_CLIENT_ID_HERE') === 0) $('cfgWarn').hidden = false;
+  $('btnConnect').onclick = () => { if (!tokenClient) initToken(); connect(); };
+  $('btnSave').onclick = save;
+  $('btnLoad').onclick = load;
+}
+window.addEventListener('load', () => {
+  const s = document.createElement('script');
+  s.src = 'https://accounts.google.com/gsi/client';
+  s.onload = boot;
+  s.onerror = () => { boot(); say('구글 로그인 스크립트를 불러오지 못했어요. 인터넷을 확인해 주세요.', true); };
+  document.head.appendChild(s);
+});
+</script>
+</body>
+</html>
