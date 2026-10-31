@@ -33,6 +33,9 @@ label.l{display:block;font-size:12px;color:#5B6661;margin:10px 0 4px}
 .dtf input{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;border:0;padding:0;-webkit-appearance:none;appearance:none}
 .in{width:100%;height:40px;border:1px solid #D5D9D3;border-radius:10px;padding:0 12px;font-size:14.5px;font-weight:500;color:#17201D;background:#fff}
 .in.amt{height:48px;border:2px solid var(--ac);text-align:right;font-size:22px;font-weight:700;padding:0 14px}
+.utabs{display:flex;border-bottom:1px solid #E1E4DF;margin:-4px 0 12px}
+.utabs button{flex:1;height:42px;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;background:none;color:#7A847F;font-size:14.5px;font-weight:500}
+.utabs button.on{color:var(--ac);font-weight:700;border-bottom-color:var(--ac)}
 .seg{background:#E8EBE6;border-radius:10px;padding:3px;display:flex;gap:2px}
 .seg button{flex:1;height:36px;border:0;border-radius:8px;background:transparent;color:#5B6661;font-size:14px;font-weight:500}
 .seg button.on{background:#fff;color:#17201D;font-weight:700}
@@ -478,8 +481,8 @@ function distinct() {
 const num = v => Number(String(v == null ? '' : v).replace(/[^0-9]/g, '')) || 0;
 const fmtIn = v => { const n = num(v); return n ? fmt(n) : ''; };
 function itabHtml() {
-  return '<div class="seg" role="tablist" style="margin-bottom:10px">' + [['direct', '직접 입력'], ['paste', '붙여넣기'], ['pending', '임시 입력']].map(x =>
-    '<button data-act="itab" data-t="' + x[0] + '" class="' + (S.itab === x[0] ? 'on' : '') + '">' + x[1] + '</button>').join('') + '</div>';
+  return '<div class="utabs" role="tablist">' + [['direct', '직접 입력'], ['paste', '붙여넣기'], ['pending', '임시 입력']].map(x =>
+    '<button role="tab" aria-selected="' + (S.itab === x[0]) + '" data-act="itab" data-t="' + x[0] + '" class="' + (S.itab === x[0] ? 'on' : '') + '">' + x[1] + '</button>').join('') + '</div>';
 }
 function eqShare(f) { const n = (f.people || []).length; return n ? Math.round(num(f.amt) / (n + 1)) : 0; }
 function personDue(f, p) { return p.due !== '' && p.due != null ? num(p.due) : eqShare(f); }
@@ -524,10 +527,10 @@ function pendingHtml() {
         (done ? '<span class="chip" style="background:var(--acbg);color:var(--ac)">받았어요</span>' : '<button class="btn sm" data-act="rcv" data-row="' + p.row + '" style="flex:none;width:80px;height:36px">받음</button>') + '</div>'; }).join('')
       : '<div class="hint" style="margin-top:8px">같이 낸 사람이 아직 없어요</div>';
     h += '<div class="row" style="justify-content:space-between;margin-top:10px"><span class="hint">받을 돈 ' + fmt(due) + ' · 지금까지 ' + fmt(got) + '</span><span style="font-size:13px;font-weight:700">내 몫 ' + fmt(mine) + '원</span></div>' +
-      '<div class="row" style="margin-top:10px"><button class="btn sm o" data-act="pad" data-id="' + t.id + '" style="flex:1">+ 사람</button><button class="btn sm" data-act="pfin" data-id="' + t.id + '" style="flex:2">정산 끝 · 내 몫 ' + fmt(mine) + '원으로 확정</button></div>' +
+      '<div class="row" style="margin-top:10px"><button class="btn sm o" data-act="pad" data-id="' + t.id + '" style="flex:1">+ 사람</button><button class="btn sm" data-act="pfin" data-id="' + t.id + '" style="flex:2">정산, 잔금 내 몫 확정</button></div>' +
       '<button class="del' + (S.pdel === t.id ? ' sure' : '') + '" data-act="pdel" data-id="' + t.id + '" style="width:100%;margin-top:8px">' + (S.pdel === t.id ? '한 번 더 누르면 삭제돼요' : '삭제') + '</button></div>';
   });
-  h += '<div class="hint" style="margin:12px 16px">정산 끝을 누르기 전까지는 달력과 통계에 들어가지 않아요. 확정하면 카드로 긁은 날짜에 내 몫만 지출로 잡혀요.</div></div>' + navHtml();
+  h += '<div class="hint" style="margin:12px 16px">"정산, 잔금 내 몫 확정"을 누르기 전까지는 달력과 통계에 들어가지 않아요. 확정하면 카드로 긁은 날짜에 내 몫만 지출로 잡혀요.</div></div>' + navHtml();
   if (sh) h += '<div class="modal" data-act="shclose"><div class="sheet" data-act="noop" role="dialog">' +
     '<div style="font-size:16px;font-weight:700">' + (sh.mode === 'recv' ? esc(sh.name) + '님이 보낸 돈' : '같이 낸 사람 추가') + '</div>' +
     (sh.mode === 'padd' ? '<label class="l" for="sh-name">이름</label><input id="sh-name" class="in" type="text" value="' + esc(sh.name) + '" data-sh="name" placeholder="예: 밍구">' : '') +
