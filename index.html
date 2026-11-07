@@ -49,19 +49,21 @@ label.l{display:block;font-size:12px;color:#5B6661;margin:10px 0 4px}
 .btn.sm{height:44px;border-radius:12px;font-size:14px}
 .btn:disabled{opacity:.5}
 .chip{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:14px;font-size:12.5px;font-weight:700}
-.cell{height:58px;border:0;background:none;border-radius:10px;padding:6px 2px 0;display:flex;flex-direction:column;align-items:center;gap:3px;color:#17201D;width:100%}
+.cell{min-height:58px;height:auto;border:0;background:none;border-radius:10px;padding:6px 1px 5px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;color:#17201D;width:100%}
 .cell .d{font-size:12px;font-weight:500}
-.cell .t{font-size:10.5px;font-weight:500}
+.cell .t,.cell .inc{font-size:10.5px;line-height:1.25;white-space:nowrap;font-variant-numeric:normal;letter-spacing:-0.03em}
+.cell .t{font-weight:500}
 .cell.amt{background:#F4F5F2}
 .cell.free{background:var(--acbg)}
 .cell.free .t{color:var(--ac);font-weight:700}
 .cell.miss{border:1px dashed #A9B0A9;padding-top:5px}
 .cell.miss .d,.cell.miss .t{color:#5B6661}
 .cell.fut .d{color:#5B6661}
-.cell.sel{background:#fff;border:2px solid var(--ac);padding-top:4px}
-.cell.tod .d{color:var(--ac);font-weight:700}
+.cell.sel{background:#fff;border:0;padding-top:6px;box-shadow:inset 0 0 0 2px var(--ac)}
+.cell.tod{border:0;padding-top:6px;box-shadow:inset 0 0 0 2px #2F5DA8}
+.cell.tod .d{color:#2F5DA8;font-weight:700}
 .cell.amt .t{color:#B3261E;font-weight:700}
-.cell .inc{font-size:10px;font-weight:700;color:var(--ac)}
+.cell .inc{font-weight:700;color:#2F5DA8}
 .row{display:flex;align-items:center;gap:8px}
 .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:#EDEFEB}
 .tag.inc{background:var(--acbg);color:var(--ac)}
@@ -128,6 +130,13 @@ const todayStr = () => { const d = new Date(); return dstr(d.getFullYear(), d.ge
 const addDays = (s, n) => { const [y, m, d] = s.split('-').map(Number); const t = new Date(y, m - 1, d + n); return dstr(t.getFullYear(), t.getMonth() + 1, t.getDate()); };
 const fmt = n => Number(n).toLocaleString('en-US');
 const dateLabel = d => { const a = d.split('-'); return a[0] + '. ' + Number(a[1]) + '. ' + Number(a[2]) + '. (' + DOW[dowOf(d)] + ')'; };
+const cellAmt = n => {
+  if (n < 1000000) return fmt(n);
+  const man = Math.round(n / 10000);
+  if (man < 10000) return fmt(man) + '만';
+  const eok = Math.round(n / 1e7) / 10;
+  return eok.toLocaleString('en-US', { maximumFractionDigits: 1 }) + '억';
+};
 const short = n => n >= 1000000 ? Math.round(n / 10000) + '만' : fmt(n);
 const dowOf = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d).getDay(); };
 function norm(v) {
@@ -388,13 +397,12 @@ function homeHtml() {
     const ds = dstr(y, m, d), st = dayState(ds, ag, today, start), o = ag[d] || {}, isT = ds === today, isS = ds === S.sel;
     if (st === 'free') free++; if (st === 'miss') miss++;
     let cls = 'cell', txt = '';
-    if (st === 'amt') { cls += ' amt'; txt = short(o.exp); }
+    if (st === 'amt') { cls += ' amt'; txt = cellAmt(o.exp); }
     else if (st === 'free') { cls += ' free'; txt = '무지출'; }
     else if (st === 'miss') { cls += ' miss'; txt = '미입력'; }
-    else if (isT) txt = '오늘';
-    else cls += ' fut';
+    else if (!isT) cls += ' fut';
     if (isT) cls += ' tod'; if (isS) cls += ' sel';
-    cells += '<button class="' + cls + '" data-act="pick" data-d="' + ds + '" aria-label="' + m + '월 ' + d + '일"><span class="d">' + d + '</span>' + (txt ? '<span class="t">' + txt + '</span>' : '') + (o.inc ? '<span class="inc">+' + (o.inc >= 10000 ? Math.round(o.inc / 10000 * 10) / 10 + '만' : fmt(o.inc)) + '</span>' : '') + '</button>';
+    cells += '<button class="' + cls + '" data-act="pick" data-d="' + ds + '" aria-label="' + m + '월 ' + d + '일"><span class="d">' + d + '</span>' + (txt ? '<span class="t">' + txt + '</span>' : '') + (o.inc ? '<span class="inc">' + cellAmt(o.inc) + '</span>' : '') + '</button>';
   }
   const sel = S.sel, sd = sel.split('-').map(Number), sIsT = sel === today;
   const list = S.tx.filter(t => t.date === sel && !t.pending);
